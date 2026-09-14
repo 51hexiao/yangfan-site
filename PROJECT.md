@@ -378,6 +378,13 @@ npm run preview  # 本地预览构建产物
 - **重要踩坑**：① TrailReport 重构时删了 `useState` import 但组件仍使用——渲染抛 ReferenceError 导致**整个 React 应用卸载（root 空、无窗口错误事件）**，现象是全站按钮点击无响应+页面空白，且因 dev 服务器依赖缓存 504（Outdated Optimize Dep）混在一起排查了很久；解法是 index.html 临时注入 window error 捕获脚本写 localStorage。教训：**重构 import 后必须跑一遍实际交互**；dev 服务器 504 时先清 `node_modules/.vite` 重启。
 - 验收：lint 0 警告、build 通过；实测九页标题、草稿徽章与生产剔除（grep dist 无草稿内容）、备份下载、首页混排、报告年份切换（全部 3 站/258 天 ↔ 2025 年度 1 站）、进度条。测试数据已清理。
 
+### 2026-09-14 更新：GitHub Pages 上线（https://51hexiao.github.io/yangfan-site/）
+- **部署方式（站长自建）**：公开仓库 yangfan-site + GitHub Actions（push main → npm ci → build → deploy-pages）；`main.jsx` 改 **HashRouter**（SPA 在 GH Pages 无 404 转发时的标准解）；`vite.config.js` 构建时 `base: '/yangfan-site/'`。git 三提交：init → 配置部署 → 修复 HashRouter 导入白屏。
+- **线上验收发现并修复三件事**：① Actions 读不到 gitignore 的 `.env.local`，地图「待通电」——新建**随仓库提交的 `.env`**（SITE_URL + 高德 key/jscode；key 本就会打进公开 bundle，入公开仓库无额外暴露，建议高德控制台配域名白名单防盗用）；② rss/sitemap 是占位域名且路径为 `/blog/x`（HashRouter 下不可达）——site-meta.js 改为输出 `site/#/path` 格式，SITE_URL 写入 .env 后 Actions 构建自动正确；③ Explore.jsx 漏接 usePageTitle（此前批量脚本中途报错被跳过，「九页全接」系误报）——已补，验收要靠线上实测。
+- 本地 `npm run build` 复核：rss 链接 `https://51hexiao.github.io/yangfan-site/#/blog/ni`、sitemap 9 地址、高德 key 进 chunk、lint 0 警告。
+- **待站长执行**：`git add -A && git commit -m "fix: 地图key/rss域名/探索页标题" && git push` 后 Actions 自动重新部署。
+- 上线前清单剩余：高德控制台给 key 配域名白名单（51hexiao.github.io）。
+
 ## 六、路线图
 
 ### 第 1 步：Markdown 内容层（✅ 已完成，2026-09-08）

@@ -14,6 +14,7 @@ import TrailMap from "../components/TrailMap.jsx";
 import Lightbox from "../components/Lightbox.jsx";
 import TrailReport from "../components/TrailReport.jsx";
 import { iconEmoji } from "../utils/exploreIcons.js";
+import { usePageTitle } from "../utils/usePageTitle.js";
 import "./Explore.css";
 
 const FILTERS = [
@@ -57,6 +58,7 @@ function useCountUp(target, duration = 900) {
 }
 
 export default function Explore() {
+  usePageTitle("探索 · 足迹");
   const [params, setParams] = useSearchParams();
   const [type, setType] = useState("all");
   const [activeSlug, setActiveSlug] = useState("");

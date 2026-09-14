@@ -77,10 +77,12 @@ export default function siteMeta(mode) {
 
       // —— sitemap.xml ——
       const staticPaths = ["", "/blog", "/archive", "/explore", "/collections", "/projects", "/about"];
+      // HashRouter 站点的真实可访问地址是 /#/path 形式
+      const page = (p) => `${site}/#${p}`;
       const urls = [
-        ...staticPaths.map((p) => `${site}${p || "/"}`),
-        ...posts.map((p) => `${site}/blog/${p.slug}`),
-        ...explores.map((p) => `${site}/explore/${p.slug}`),
+        ...staticPaths.map((p) => page(p || "/")),
+        ...posts.map((p) => page(`/blog/${p.slug}`)),
+        ...explores.map((p) => page(`/explore/${p.slug}`)),
       ];
       fs.writeFileSync(
         path.join(dist, "sitemap.xml"),
@@ -92,8 +94,8 @@ export default function siteMeta(mode) {
 
       // —— rss.xml ——
       const items = [
-        ...posts.map((p) => ({ ...p, link: `${site}/blog/${p.slug}`, cat: p.tag || "博客" })),
-        ...explores.map((p) => ({ ...p, link: `${site}/explore/${p.slug}`, cat: "足迹" })),
+        ...posts.map((p) => ({ ...p, link: page(`/blog/${p.slug}`), cat: p.tag || "博客" })),
+        ...explores.map((p) => ({ ...p, link: page(`/explore/${p.slug}`), cat: "足迹" })),
       ]
         .filter((p) => p.date)
         .sort((a, b) => b.date.localeCompare(a.date))
