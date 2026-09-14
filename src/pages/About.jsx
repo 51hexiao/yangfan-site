@@ -43,7 +43,7 @@ export default function About() {
 
       <section className="about-id" aria-label="站点主人的名片">
         <div className="about-avatar">
-          <img src="/avatar.jpg" alt="杨帆的头像" />
+          <img src={`${import.meta.env.BASE_URL}avatar.jpg`} alt="杨帆的头像" />
         </div>
         <div className="about-id-text">
           <h2 className="about-name">杨帆</h2>

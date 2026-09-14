@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import { withBaseHtml } from "./asset.js";
 
 // 构建时加载 posts/ 目录下所有 Markdown 文件（Vite 编译期处理，非运行时 IO）
 // 草稿双保险：① 文件名以 .draft.md 结尾（生产构建连内容一起剔除，推荐）
@@ -46,7 +47,7 @@ export const posts = Object.entries(files)
       tag: meta.tag ?? "未分类",
       draft: path.endsWith(".draft.md") || /^(true|1|yes)$/i.test(meta.draft ?? ""),
       excerpt: meta.excerpt ?? body.replace(/[#>*`\-\n]/g, " ").trim().slice(0, 80) + "…",
-      content: marked.parse(body),
+      content: withBaseHtml(marked.parse(body)),
     };
   })
   .filter((p) => isDev || !p.draft)

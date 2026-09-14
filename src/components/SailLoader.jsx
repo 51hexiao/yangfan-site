@@ -5,10 +5,13 @@ export default function SailLoader({ text = "正在扬帆…" }) {
   return (
     <div className="sail-loader" role="status" aria-live="polite">
       <picture>
-        <source srcSet="/sailing.webp" type="image/webp" />
+        <source
+          srcSet={`${import.meta.env.BASE_URL}sailing.webp`}
+          type="image/webp"
+        />
         <img
           className="sail-loader-img"
-          src="/sailing.gif"
+          src={`${import.meta.env.BASE_URL}sailing.gif`}
           alt=""
           width="200"
           height="200"

@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import { assetUrl, withBaseHtml } from "./asset.js";
 
 // 构建时加载 explore/ 目录下所有 Markdown（Vite 编译期处理，非运行时 IO）
 // 草稿约定同 post.js：*.draft.md 生产完全剔除；frontmatter draft: true 仅隐藏列表
@@ -47,7 +48,8 @@ function buildRecord(path, raw) {
   const slug = meta.slug || path.match(/\/([^/]+)\.md$/)[1];
   const lat = Number(meta.lat);
   const lng = Number(meta.lng);
-  const images = [...toList(meta.images), ...toList(meta.cover)];
+  // 图片路径统一补部署基路径（md 原文保持 /uploads/... 不变）
+  const images = [...toList(meta.images), ...toList(meta.cover)].map(assetUrl);
   const text = body.trim();
   return {
     slug,
@@ -68,7 +70,7 @@ function buildRecord(path, raw) {
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 44),
-    content: marked.parse(text),
+    content: withBaseHtml(marked.parse(text)),
   };
 }
 

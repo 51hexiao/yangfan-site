@@ -79,7 +79,7 @@ export default function Home() {
           </div>
           <div className="hero-avatar-wrap">
             <div className="hero-avatar">
-              <img src="/avatar.jpg" alt="头像" />
+              <img src={`${import.meta.env.BASE_URL}avatar.jpg`} alt="头像" />
             </div>
           </div>
         </div>
