@@ -1,0 +1,158 @@
+/* 主题选择器：按钮本体样式在 index.css 的 .theme-toggle，这里只放弹出面板 */
+
+.theme-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 按钮里的图标：与下拉面板同款的双色块（底色铺满 + 右下角主色）
+   跟随当前配色，7 套主题共用同一形态，不再随明暗换成太阳/月亮 */
+.theme-toggle-swatch {
+  position: relative;
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.theme-toggle-swatch i {
+  position: absolute;
+  display: block;
+}
+
+.theme-toggle-swatch i:first-child {
+  inset: 0;
+}
+
+.theme-toggle-swatch i:last-child {
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  border-top-left-radius: 6px;
+}
+
+.theme-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 80;
+  width: 234px;
+  padding: 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 18px 42px var(--shadow);
+  animation: theme-menu-in 0.16s ease-out both;
+}
+
+.theme-menu-title {
+  margin: 2px 6px 8px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--text-secondary);
+}
+
+.theme-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+.theme-option:hover,
+.theme-option.active {
+  background: var(--accent-soft);
+}
+
+.theme-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* 迷你色块：底色铺满 + 右下角强调色角标 */
+.theme-swatch {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.theme-swatch i {
+  position: absolute;
+  display: block;
+}
+
+.theme-swatch i:first-child {
+  inset: 0;
+}
+
+.theme-swatch i:last-child {
+  right: 0;
+  bottom: 0;
+  width: 13px;
+  height: 13px;
+  border-top-left-radius: 7px;
+}
+
+.theme-option-text {
+  display: grid;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-option-name {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.theme-option-note {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.theme-option-check {
+  flex: none;
+  width: 14px;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+@keyframes theme-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-menu {
+    animation: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .theme-menu {
+    width: min(234px, calc(100vw - 40px));
+  }
+}

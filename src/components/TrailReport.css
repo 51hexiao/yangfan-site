@@ -1,0 +1,325 @@
+/* 旅程报告弹层：手账册页风，样式走设计令牌，暗色自动适配 */
+.report-overlay {
+  --ex-food: #c07a2c;
+  --ex-food-soft: rgba(192, 122, 44, 0.12);
+}
+
+[data-mode="dark"] .report-overlay {
+  --ex-food: #e0a95c;
+}
+
+.report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 40px);
+  background: rgba(12, 16, 14, 0.55);
+  backdrop-filter: blur(5px);
+}
+
+.report-sheet {
+  width: min(720px, 100%);
+  max-height: min(86vh, 980px);
+  overflow-y: auto;
+  padding: clamp(22px, 4vw, 40px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 32px 80px -32px rgba(0, 0, 0, 0.5);
+}
+
+.report-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.report-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.report-kicker {
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  color: var(--text-secondary);
+}
+
+.report-title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.report-range {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 年份切换 */
+.report-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.report-tab {
+  font: inherit;
+  font-size: 12.5px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+}
+
+.report-tab:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.report-tab.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* 大数字 */
+.report-stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.report-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 4px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+.report-stat b {
+  padding: 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(to top, var(--cream) 0 42%, transparent 42%);
+}
+
+.report-stat span {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+/* 分节 */
+.report-sec {
+  margin-top: 24px;
+}
+
+.report-sec h3 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.report-sec h3::after {
+  content: "";
+  display: block;
+  margin-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+
+/* 城市排行 */
+.report-city {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.report-city-name {
+  flex: none;
+  min-width: 72px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.report-city-bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--chip);
+  overflow: hidden;
+}
+
+.report-city-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: 0.75;
+}
+
+.report-city-n {
+  flex: none;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 月度节奏 */
+.report-months {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  min-height: 100px;
+  padding: 10px 4px 0;
+}
+
+.report-month {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.report-month i {
+  display: block;
+  width: 26px;
+  border-radius: 6px 6px 2px 2px;
+  background: var(--accent);
+  opacity: 0.8;
+}
+
+.report-month span {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* 口味比例 */
+.report-taste {
+  display: flex;
+  height: 22px;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.report-taste i {
+  display: block;
+  height: 100%;
+}
+
+.report-taste-food {
+  background: var(--ex-food, #c07a2c);
+  opacity: 0.85;
+}
+
+.report-taste-spot {
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.report-taste-label {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+/* 之最 */
+.report-best {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: var(--text);
+}
+
+/* 底部 */
+.report-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+.report-sign {
+  font-size: 12.5px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.report-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 560px) {
+  .report-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .report-foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-sign {
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .report-overlay {
+    animation: report-in 0.22s ease;
+  }
+
+  .report-sheet {
+    animation: report-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes report-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes report-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

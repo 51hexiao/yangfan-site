@@ -1,0 +1,1019 @@
+/* ============================================================
+   写作台 /admin ——「手账工作台」
+   风格与首页同源：奶油纸面 + 墨绿墨色 + 虚线行线，暗色适配。
+   预览区排版复用全局 .post-body（index.css），所见即所得。
+   本文件独立，后期上线删除 admin 时可整体移除。
+   ============================================================ */
+
+/* 写作台独立放宽：不受全局 1100px 限制，双栏随视口变宽 */
+.container.admin {
+  max-width: 1600px;
+}
+
+.admin {
+  --paper: #f7f2e6;          /* 纸面 */
+  --paper-2: #fbf8f0;        /* 纸上浮层 */
+  --ink: #173f37;            /* 墨绿墨色 */
+  --ink-2: #5c6b62;          /* 淡墨（次要文字） */
+  --line: rgba(23, 63, 55, 0.16);
+  --line-strong: rgba(23, 63, 55, 0.32);
+  --cream: #ffe9b3;
+  --fold: #eae3d0;              /* 空态折纸角的纸背 */
+  --fold-line: rgba(23, 63, 55, 0.32);
+  padding-top: 34px;
+  padding-bottom: 80px;
+}
+
+[data-mode="dark"] .admin {
+  --paper: #161b1e;
+  --paper-2: #1c2326;
+  --ink: #8fd8b6;
+  --ink-2: #93a49c;
+  --line: rgba(143, 216, 182, 0.16);
+  --line-strong: rgba(143, 216, 182, 0.4);
+  --cream: #c9a04c;
+  --fold: #101517;
+  --fold-line: rgba(143, 216, 182, 0.4);
+}
+
+.admin a:focus-visible,
+.admin button:focus-visible,
+.admin input:focus-visible,
+.admin textarea:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- 顶栏 ---------- */
+.admin-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 26px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------- 按钮 ---------- */
+.admin-btn {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text);
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1.4;
+  min-height: 40px;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.admin-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.admin-btn:active {
+  transform: translateY(1px);
+}
+
+.admin-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-btn-primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper-2);
+  font-weight: 600;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.admin-btn-primary:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+  filter: brightness(1.12);
+}
+
+.admin-btn-ghost {
+  background: var(--paper);
+}
+
+.admin-btn-text {
+  border-color: transparent;
+  background: transparent;
+  padding-left: 2px;
+  padding-right: 2px;
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-style: dotted;
+}
+
+.admin-btn-text:hover {
+  border-color: transparent;
+  color: var(--ink);
+  text-decoration-style: solid;
+}
+
+.admin-btn-danger {
+  color: #b3392e;
+  border-color: rgba(179, 57, 46, 0.35);
+}
+
+[data-mode="dark"] .admin-btn-danger {
+  color: #f0a398;
+}
+
+.admin-btn-danger:hover {
+  border-color: #b3392e;
+  color: #b3392e;
+  background: rgba(179, 57, 46, 0.08);
+}
+
+.admin-btn-sm {
+  min-height: 36px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+}
+
+/* ---------- 骨架屏 ---------- */
+.admin-skeleton-line,
+.admin-skeleton-btn,
+.admin-skeleton-row {
+  background: linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%);
+  background-size: 200% 100%;
+  animation: admin-shimmer 1.3s infinite;
+  border-radius: 6px;
+}
+
+@keyframes admin-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.admin-skeleton-line {
+  height: 42px;
+  width: 180px;
+  display: block;
+}
+
+.admin-skeleton-btn {
+  height: 40px;
+  width: 120px;
+  border-radius: 10px;
+}
+
+.admin-skeleton-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-skeleton-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 74px;
+  border-radius: 0;
+  background: none;
+  animation: none;
+  border-bottom: 1px dashed var(--line);
+}
+
+.admin-skeleton-row .w-40 {
+  width: 40%;
+  height: 20px;
+  background: linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%);
+  background-size: 200% 100%;
+  animation: admin-shimmer 1.3s infinite;
+}
+
+.admin-skeleton-row .w-20 {
+  width: 20%;
+  height: 14px;
+  background: linear-gradient(90deg, var(--line) 25%, var(--line-strong) 50%, var(--line) 75%);
+  background-size: 200% 100%;
+  animation: admin-shimmer 1.3s infinite;
+}
+
+/* ---------- 通用提示 / 纸条 ---------- */
+.admin-note {
+  position: relative;
+  margin-top: 40px;
+  padding: 46px 36px 40px;
+  background: var(--paper);
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  text-align: left;
+  max-width: 560px;
+}
+
+.admin-note::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--cream) 0 10px,
+    transparent 10px 20px
+  );
+  border-radius: 14px 14px 0 0;
+}
+
+.admin-note-no {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+  opacity: 0.18;
+}
+
+.admin-note h2 {
+  font-size: 1.35rem;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.admin-note p {
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.admin-link {
+  display: inline-block;
+  margin-top: 12px;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ---------- 顶部标题 ---------- */
+.admin-kicker {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  padding: 3px 12px;
+  opacity: 0.9;
+  background: rgba(255, 233, 179, 0.35);
+}
+
+[data-mode="dark"] .admin-kicker {
+  background: rgba(201, 160, 76, 0.18);
+}
+
+.admin-list-h1,
+.admin-editor-h1 {
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  margin-top: 14px;
+  position: relative;
+  display: inline-block;
+  padding: 0.05em 0.2em 0.1em;
+  border-radius: 6px;
+  /* 手绘奶油高亮：文字压在淡奶油底上，模拟荧光笔划线 */
+  background: linear-gradient(
+    180deg,
+    transparent 58%,
+    rgba(255, 233, 179, 0.65) 58%,
+    rgba(255, 233, 179, 0.65) 92%,
+    transparent 92%
+  );
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+[data-mode="dark"] .admin-list-h1,
+[data-mode="dark"] .admin-editor-h1 {
+  background: linear-gradient(
+    180deg,
+    transparent 58%,
+    rgba(201, 160, 76, 0.28) 58%,
+    rgba(201, 160, 76, 0.28) 92%,
+    transparent 92%
+  );
+}
+
+/* 高亮收尾处的小墨点，手账标记感 */
+.admin-list-h1::after,
+.admin-editor-h1::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+  opacity: 0.28;
+  vertical-align: 0.32em;
+}
+
+.admin-list-sub,
+.admin-editor-sub {
+  margin-top: 8px;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+
+.admin-editor-head {
+  margin-bottom: 26px;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 22px;
+}
+
+.admin-list-head {
+  margin-bottom: 10px;
+}
+
+/* ---------- 消息 ---------- */
+.admin-msg {
+  margin: 16px 0;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  border: 1px solid;
+}
+
+.admin-msg-ok {
+  border-color: rgba(34, 154, 96, 0.4);
+  background: rgba(34, 154, 96, 0.1);
+  color: #16804f;
+}
+
+[data-mode="dark"] .admin-msg-ok {
+  color: #6fd3a0;
+}
+
+.admin-msg-error {
+  border-color: rgba(179, 57, 46, 0.4);
+  background: rgba(179, 57, 46, 0.1);
+  color: #b3392e;
+}
+
+[data-mode="dark"] .admin-msg-error {
+  color: #f0a398;
+}
+
+.admin-msg-info {
+  border-color: var(--line-strong);
+  background: rgba(23, 63, 55, 0.07);
+  color: var(--ink);
+}
+
+[data-mode="dark"] .admin-msg-info {
+  background: rgba(143, 216, 182, 0.09);
+  color: var(--ink);
+}
+
+.admin-hint {
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.admin-hint-right {
+  margin-left: auto;
+}
+
+/* ---------- 文章列表 ---------- */
+.admin-list {
+  margin-top: 12px;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 8px;
+  border-bottom: 1px dashed var(--line);
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.admin-row:hover {
+  background: var(--paper);
+  transform: translateX(3px);
+}
+
+.admin-row-no {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.55;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 50%;
+  letter-spacing: 0.02em;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+}
+
+.admin-row:hover .admin-row-no {
+  background: var(--ink);
+  border-style: solid;
+  border-color: var(--ink);
+  color: var(--paper-2);
+  opacity: 1;
+}
+
+.admin-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-row-title {
+  font-size: 1.06rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  display: inline-block;
+}
+
+.admin-row-title:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-color: var(--line-strong);
+}
+
+.admin-row-meta {
+  margin-top: 4px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: var(--ink-2);
+  font-size: 0.82rem;
+}
+
+.admin-row-slug {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+
+.admin-row-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.admin-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: rgba(23, 63, 55, 0.08);
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 4px;
+}
+
+[data-mode="dark"] .admin-tag {
+  background: rgba(143, 216, 182, 0.12);
+}
+
+.admin-tag-muted {
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+.admin-footnote {
+  margin-top: 34px;
+  color: var(--ink-2);
+  font-size: 0.8rem;
+  opacity: 0.75;
+  border-top: 1px dashed var(--line);
+  padding-top: 16px;
+}
+
+/* 本地点滴小章 */
+.admin-footnote::before {
+  content: "LOCAL";
+  display: inline-block;
+  margin-right: 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  opacity: 0.7;
+  transform: translateY(-1px);
+}
+
+/* ---------- 编辑器 · 纸张面板 ---------- */
+.admin-paper {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px 26px 30px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03), 0 18px 40px -30px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+[data-mode="dark"] .admin-paper {
+  box-shadow: 0 18px 40px -30px rgba(0, 0, 0, 0.7);
+}
+
+/* 纸张左缘的墨绿书脊线 */
+.admin-paper::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22px;
+  bottom: 22px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--ink);
+  opacity: 0.55;
+}
+
+/* 标题 / slug / 标签 */
+.admin-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-left: 10px;
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.admin-field > span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  text-transform: uppercase;
+}
+
+.admin-field input {
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 1.5px dashed var(--line-strong);
+  background: transparent;
+  color: var(--text);
+  padding: 10px 2px;
+  font-size: 1rem;
+  font-family: inherit;
+  border-radius: 0;
+  transition: border-color 0.18s ease;
+}
+
+.admin-field input:focus {
+  outline: none;
+  border-bottom-style: solid;
+  border-bottom-color: var(--ink);
+}
+
+.admin-field input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-field-title {
+  grid-column: 1 / -1;
+}
+
+.admin-field-title input {
+  font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+  font-weight: 700;
+  padding: 12px 2px;
+}
+
+.admin-field-title input::placeholder {
+  font-weight: 400;
+  opacity: 0.55;
+}
+
+.admin-em {
+  font-style: normal;
+  font-size: 0.76rem;
+  color: var(--ink-2);
+  opacity: 0.85;
+}
+
+/* 左右两栏：编辑列与预览列等宽 */
+.admin-body-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  padding-left: 10px;
+}
+
+.admin-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ---------- 快捷格式工具栏 ---------- */
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+  padding: 6px 6px;
+  margin-bottom: 10px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.admin-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.admin-tb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-tb:hover {
+  background: var(--paper-2);
+  border-color: var(--line-strong);
+}
+
+.admin-tb:active {
+  transform: translateY(1px);
+}
+
+.admin-tb-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--line);
+  margin: 0 3px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .admin-toolbar {
+    gap: 2px;
+    padding: 6px;
+  }
+  .admin-tb {
+    min-width: 30px;
+    padding: 0 8px;
+  }
+}
+
+.admin-count {
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-write {
+  display: flex;
+  flex-direction: column;
+  min-height: 540px;
+  background: var(--paper-2);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 16px 16px 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-write:focus-within {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(23, 63, 55, 0.09);
+}
+
+[data-mode="dark"] .admin-write:focus-within {
+  box-shadow: 0 0 0 3px rgba(143, 216, 182, 0.12);
+}
+
+.admin-write textarea {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  resize: vertical;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.85;
+  padding: 0 2px;
+}
+
+.admin-write textarea:focus {
+  outline: none;
+}
+
+/* 预览纸 */
+.admin-preview {
+  display: flex;
+  flex-direction: column;
+  min-height: 540px;
+  background: var(--paper-2);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  padding: 16px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.admin-preview-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.admin-preview-empty {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0 24px;
+  overflow: hidden;
+}
+
+/* 右下折起的纸角：纸背偏深一档以在浅纸上成形，折痕用高对比墨线 */
+.admin-empty-corner {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(225deg, transparent 48%, var(--fold) 50%);
+  border-top-left-radius: 8px;
+  pointer-events: none;
+}
+
+.admin-empty-corner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    225deg,
+    transparent calc(50% - 0.7px),
+    var(--fold-line) calc(50% - 0.7px),
+    var(--fold-line) calc(50% + 0.7px),
+    transparent calc(50% + 0.7px)
+  );
+}
+
+.admin-empty-title {
+  font-size: 1.08rem;
+  color: var(--ink);
+  font-weight: 650;
+  margin-top: 6px;
+}
+
+.admin-empty-desc {
+  font-size: 0.88rem;
+  opacity: 0.9;
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+.admin-empty-hints {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.admin-empty-hints > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+
+.admin-empty-hints i {
+  font-style: normal;
+  font-weight: 800;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  color: var(--ink);
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-size: 0.72rem;
+  background: var(--paper-2);
+}
+
+/* 底部操作 */
+.admin-actions {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-left: 10px;
+}
+
+.admin-actions .admin-btn-primary {
+  padding: 12px 26px;
+  min-height: 46px;
+  font-size: 1rem;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 900px) {
+  .admin-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-field-title {
+    grid-column: auto;
+  }
+  .admin-body-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-write,
+  .admin-preview {
+    min-height: 0;
+  }
+  .admin-write textarea {
+    min-height: 340px;
+  }
+  .admin-preview-body,
+  .admin-preview-empty {
+    min-height: 300px;
+  }
+  .admin-row {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .admin-row-side {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .admin-hint-right {
+    margin-left: 0;
+  }
+}
+
+/* ---------- 预览定格排版 ----------
+   写作台预览内 # ## ### 标题一律无 margin/padding 拖尾，
+   块间距统一由下方规则固定，观感紧凑、不随标题级数跳动。
+   仅作用于写作台预览（.admin-preview-body），不影响博客正式页。
+   ---------- */
+.admin-preview-body .post-body,
+.admin-preview-body .post-body > *:first-child {
+  margin-top: 0;
+}
+
+.admin-preview-body .post-body h1,
+.admin-preview-body .post-body h2,
+.admin-preview-body .post-body h3,
+.admin-preview-body .post-body h4 {
+  margin: 0;
+  padding: 0;
+  border: none;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.admin-preview-body .post-body h1 {
+  font-size: 1.5rem;
+}
+
+.admin-preview-body .post-body h2 {
+  font-size: 1.3rem;
+}
+
+.admin-preview-body .post-body h3 {
+  font-size: 1.14rem;
+}
+
+.admin-preview-body .post-body h4 {
+  font-size: 1rem;
+}
+
+/* 标题无任何 margin/padding，前后紧贴，仅靠字号/字重/颜色区分层级 */
+.admin-preview-body .post-body h1,
+.admin-preview-body .post-body h2,
+.admin-preview-body .post-body h3,
+.admin-preview-body .post-body h4 {
+  margin: 0;
+  padding: 0;
+  border: none;
+  color: var(--ink);
+}
+
+.admin-preview-body .post-body p {
+  margin: 0 0 0.45em;
+  padding: 0;
+}
+
+.admin-preview-body .post-body ul,
+.admin-preview-body .post-body ol {
+  margin: 0 0 0.45em;
+  padding-left: 1.5em;
+}
+
+.admin-preview-body .post-body li {
+  margin: 0;
+}
+
+.admin-preview-body .post-body blockquote {
+  margin: 0 0 0.45em;
+  padding: 0.2em 0 0.2em 0.9em;
+}
+
+.admin-preview-body .post-body pre {
+  margin: 0 0 0.45em;
+  padding: 12px 14px;
+}
+
+.admin-preview-body .post-body code {
+  padding: 1px 5px;
+}
+
+.admin-preview-body .post-body hr {
+  margin: 0.6em 0;
+}
+
+.admin-preview-body .post-body img {
+  margin: 0.45em 0;
+}
+
+/* 编译预览：预览区短暂高亮提示 */
+.admin-preview {
+  scroll-margin-top: 90px;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}

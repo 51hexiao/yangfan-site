@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="肥仔妙妙屋 - 杨帆的个人网站，分享技术学习、项目实践与生活记录" />
+    <meta property="og:site_name" content="肥仔妙妙屋" />
+    <meta property="og:type" content="website" />
+    <title>肥仔妙妙屋</title>
+    <!-- 首屏提前套用主题，避免刷新时的配色闪烁；主题清单需与 src/data/themes.js 同步 -->
+    <script>
+      (function () {
+        var modes = {
+          light: "light",
+          dark: "dark",
+          celadon: "light",
+          rouge: "light",
+          brine: "light",
+          dusk: "dark",
+          harvest: "dark",
+        };
+        var id;
+        try {
+          id = localStorage.getItem("theme");
+        } catch (e) {
+          id = null;
+        }
+        if (!modes[id]) {
+          id = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        document.documentElement.setAttribute("data-theme", id);
+        document.documentElement.setAttribute("data-mode", modes[id]);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

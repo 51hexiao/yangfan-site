@@ -1,0 +1,147 @@
+/* 灯箱：全站可复用，样式全部走设计令牌，暗色自动适配 */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(16px, 4vw, 56px);
+  background: rgba(12, 16, 14, 0.88);
+  backdrop-filter: blur(6px);
+}
+
+.lightbox-inner {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 20px);
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.lightbox-stage {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  max-height: 100%;
+}
+
+.lightbox-stage img {
+  display: block;
+  max-width: min(1080px, calc(100vw - 160px));
+  max-height: calc(100vh - 140px);
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 24px 64px -24px rgba(0, 0, 0, 0.6);
+}
+
+.lightbox-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.85rem;
+}
+
+.lightbox-alt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lightbox-count {
+  flex: none;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.lightbox-arrow,
+.lightbox-close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.lightbox-arrow:hover,
+.lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.lightbox-arrow:active,
+.lightbox-close:active {
+  transform: scale(0.94);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: clamp(14px, 3vw, 28px);
+  right: clamp(14px, 3vw, 28px);
+  font-size: 1.4rem;
+}
+
+@media (max-width: 640px) {
+  .lightbox-stage img {
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 160px);
+  }
+
+  .lightbox-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .lightbox-arrow-prev {
+    left: 12px;
+  }
+
+  .lightbox-arrow-next {
+    right: 12px;
+  }
+
+  .lightbox-inner {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox {
+    animation: lightbox-in 0.22s ease;
+  }
+
+  .lightbox-stage img {
+    animation: lightbox-zoom 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lightbox-zoom {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,135 @@
+/* 博客归档：年份时间线，样式走设计令牌 */
+.arc-chip-num {
+  font-style: normal;
+  margin-left: 6px;
+  font-size: 11.5px;
+  opacity: 0.55;
+}
+
+.blog-archive-link {
+  margin-left: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.blog-archive-link:hover {
+  text-decoration: underline;
+}
+
+.arc-year {
+  margin-top: 34px;
+}
+
+.arc-year-label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 14px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.arc-year-label span {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.arc-list {
+  border-left: 2px dashed var(--border);
+  padding-left: 22px;
+  margin-left: 6px;
+}
+
+.arc-row {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 10px 10px 10px 14px;
+  margin: 0 0 2px -2px;
+  border-left: 2px solid transparent;
+  border-radius: 0 10px 10px 0;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+
+/* 时间线节点墨点 */
+.arc-row::before {
+  content: "";
+  position: absolute;
+  left: -29px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.18s, transform 0.18s;
+}
+
+.arc-row:hover {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+  transform: translateX(3px);
+}
+
+.arc-row:hover::before {
+  background: var(--accent);
+  transform: translateY(-50%) scale(1.35);
+}
+
+.arc-row-date {
+  flex: none;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.arc-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.arc-row-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.arc-row:hover .arc-row-title {
+  color: var(--accent);
+}
+
+.arc-row-tag {
+  flex: none;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.arc-row-read {
+  flex: none;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .arc-row-read {
+    display: none;
+  }
+
+  .arc-year-label {
+    font-size: 20px;
+  }
+}
