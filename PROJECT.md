@@ -393,6 +393,13 @@ npm run preview  # 本地预览构建产物
 - 顺带：`main.jsx` 为 HashRouter（GH Pages 无 404 转发的标准解），dev 访问管理页须用 `/#/admin`、`/#/admin/git` 形式。
 - 验收：lint 0 警告、build 通过（dist 无 AdminGit/SiteAssistant 代码）；实测版本手账（分支/远程/43 处变更清单渲染）、小管家打开/未配置提示/历史 sessionStorage 持久化（刷新恢复）/清空。
 
+### 2026-09-16 更新：本地 API 安全加固（CSRF 守卫 + HTML 消毒）
+- **风险审查结论**：小管家本体（AI 助手）风险低——气泡纯文本渲染无 XSS 面、动作白名单严格（5 种动作全过校验器）、key 不进代码；但发现 dev 中间件族的共同窟窿：**所有 POST 接口不校验 Origin/Content-Type**，dev server 开着时浏览恶意网页可用 text/plain「CORS 简单请求」（不触发预检）盲触发 git commit/push 与文章改写，推送又联动自动部署，等同把公开站点交出去。
+- **CSRF 守卫** 新文件 `plugins/local-guard.js`（git-desk 与 local-editor 共用）：Host 必须为 localhost 系（顺带防 DNS 重绑定，Vite 自身 host 校验之外的纵深）；带 Origin 的请求必须与 Host 同源（浏览器对跨站/同源 POST 均带 Origin，恶意页面对不上即 403；curl 等无 Origin 的本机工具放行）。两个插件的所有 /api 请求统一前置校验。
+- **HTML 消毒** 新文件 `src/utils/sanitizeHtml.js`：marked 默认不消毒，手写 md 里的 `<script>`/on* 事件/javascript: 伪协议会原样进详情页（配合 CSRF 写文件链路即成 XSS）。post.js / explore.js 在 `withBaseHtml(marked.parse())` 外层包 sanitizeHtml——剥危险标签（连内容）、on* 属性、javascript: 链接、srcdoc；正常标签/图片/链接/代码块不受影响。
+- 验证：四组 CSRF 对照（恶意 Origin 403 / 伪造 Host 被拦 / 同源 200 / curl 200）；XSS 三向量实测全部拦截（window.__pwned 未被置位、详情页 0 script、0 onerror、0 javascript: 链接），正常段落照常渲染；lint 0 警告、build 通过。测试数据已清理。
+- **遗留的已知取舍**：高德 key 终将出现在公开前端 bundle（JS API 机制如此），secrets 只保源码干净——真正的防盗用是高德控制台配域名白名单（待办）。
+
 ## 六、路线图
 
 ### 第 1 步：Markdown 内容层（✅ 已完成，2026-09-08）

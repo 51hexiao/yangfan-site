@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import { sanitizeHtml } from "./sanitizeHtml.js";
 import { assetUrl, withBaseHtml } from "./asset.js";
 
 // 构建时加载 explore/ 目录下所有 Markdown（Vite 编译期处理，非运行时 IO）
@@ -70,7 +71,7 @@ function buildRecord(path, raw) {
       .replace(/\s+/g, " ")
       .trim()
       .slice(0, 44),
-    content: withBaseHtml(marked.parse(text)),
+    content: sanitizeHtml(withBaseHtml(marked.parse(text))),
   };
 }
 

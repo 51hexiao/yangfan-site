@@ -17,6 +17,7 @@
 //   2. 删除 vite.config.js 中的 gitDesk() 注册
 //   3. 删除 src/pages/AdminGit.jsx / AdminGit.css，以及 App.jsx 中 /admin/git 路由与入口
 import { execFile } from "node:child_process";
+import { isTrustedLocal } from "./local-guard.js";
 
 const ROOT = process.cwd();
 const GIT_TIMEOUT_MS = 60 * 1000;
@@ -265,6 +266,9 @@ export default function gitDesk() {
     name: "git-desk-api",
     configureServer(server) {
       server.middlewares.use("/api/git", async (req, res) => {
+        if (!isTrustedLocal(req)) {
+          return send(res, 403, { error: "本机接口不对外，请从 localhost 访问" });
+        }
         const method = req.method;
         const url = new URL(req.url, "http://localhost");
         const action = url.pathname.split("/").filter(Boolean)[0] ?? "";

@@ -13,6 +13,8 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { isTrustedLocal } from "./local-guard.js";
+
 const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "posts");
 const TRASH_DIR = path.join(POSTS_DIR, ".trash");
@@ -183,6 +185,9 @@ export default function localEditor() {
     name: "local-editor-api",
     configureServer(server) {
       server.middlewares.use("/api", async (req, res, next) => {
+        if (!isTrustedLocal(req)) {
+          return send(res, 403, { error: "本机接口不对外，请从 localhost 访问" });
+        }
         const method = req.method;
         const url = new URL(req.url, "http://localhost");
         const segments = url.pathname.split("/").filter(Boolean); // ['posts'] 或 ['posts', slug]
