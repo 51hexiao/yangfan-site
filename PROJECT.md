@@ -382,7 +382,7 @@ npm run preview  # 本地预览构建产物
 - **部署方式（站长自建）**：公开仓库 yangfan-site + GitHub Actions（push main → npm ci → build → deploy-pages）；`main.jsx` 改 **HashRouter**（SPA 在 GH Pages 无 404 转发时的标准解）；`vite.config.js` 构建时 `base: '/yangfan-site/'`。git 三提交：init → 配置部署 → 修复 HashRouter 导入白屏。
 - **线上验收发现并修复三件事**：① Actions 读不到 gitignore 的 `.env.local`，地图「待通电」——新建**随仓库提交的 `.env`**（SITE_URL + 高德 key/jscode；key 本就会打进公开 bundle，入公开仓库无额外暴露，建议高德控制台配域名白名单防盗用）；② rss/sitemap 是占位域名且路径为 `/blog/x`（HashRouter 下不可达）——site-meta.js 改为输出 `site/#/path` 格式，SITE_URL 写入 .env 后 Actions 构建自动正确；③ Explore.jsx 漏接 usePageTitle（此前批量脚本中途报错被跳过，「九页全接」系误报）——已补，验收要靠线上实测。
 - 本地 `npm run build` 复核：rss 链接 `https://51hexiao.github.io/yangfan-site/#/blog/ni`、sitemap 9 地址、高德 key 进 chunk、lint 0 警告。
-- **待站长执行**：`git add -A && git commit -m "fix: 地图key/rss域名/探索页标题" && git push` 后 Actions 自动重新部署。
+- **已推送部署并线上复验（commit 1645700）**：地图出图钉（key 进 chunk Explore-DRgQi3hC.js）、标题「探索 · 足迹 · 肥仔妙妙屋」、rss/sitemap 为 yangfan-site/#/ 真实地址、工具条 4 钮正常。排查技巧：① GitHub Pages 的 HTML/JS 有 ~10 分钟 CDN 缓存，验证新部署用「内容寻址的新 chunk 文件名是否 200」最可靠（HTML 引用可能还是缓存的旧哈希）；② 无 gh CLI 且 API 限流时，可用 `git credential fill` 取凭据调 Actions API 查 run 状态。
 - 上线前清单剩余：高德控制台给 key 配域名白名单（51hexiao.github.io）。
 
 ## 六、路线图
