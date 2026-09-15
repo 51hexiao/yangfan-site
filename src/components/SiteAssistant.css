@@ -1,0 +1,615 @@
+/* 全站常驻小管家浮层：走设计令牌，与手账墨绿调同源。
+   层级 60：低于导航(100)/搜索(120)/帆船遮罩，不与既有浮层抢位置。 */
+
+.mmw-ai {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.mmw-ai > * {
+  pointer-events: auto;
+}
+
+/* ---------- 收起态：右侧留白带里的竖排书签 ---------- */
+
+.mmw-ai-tab {
+  position: fixed;
+  top: 38%;
+  right: max(16px, calc(50vw - 700px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 9px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 12.5px;
+  letter-spacing: 0.18em;
+  writing-mode: vertical-rl;
+  cursor: pointer;
+  box-shadow: 0 12px 26px -18px var(--shadow);
+  transition: transform 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.mmw-ai-tab:hover {
+  transform: translateX(-3px);
+  border-color: var(--accent);
+  border-style: solid;
+}
+
+.mmw-ai-tab-mark {
+  color: var(--accent);
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+.mmw-ai-tab:focus-visible,
+.mmw-ai-fab:focus-visible,
+.mmw-ai-close:focus-visible,
+.mmw-ai-send:focus-visible,
+.mmw-ai-chip:focus-visible,
+.mmw-ai-icon-btn:focus-visible,
+.mmw-ai-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- 收起态：窄屏圆形悬浮按钮 ---------- */
+
+.mmw-ai-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 14px 30px -14px var(--shadow);
+}
+
+/* ---------- 展开态面板 ---------- */
+
+.mmw-ai-panel {
+  position: fixed;
+  top: 84px;
+  bottom: 22px;
+  right: max(16px, calc(50vw - 700px));
+  width: min(374px, calc(100vw - 32px));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 34px 80px -34px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+/* 顶部一道墨绿细线 + 内层虚线，呼应手账装订感 */
+.mmw-ai-panel::before {
+  content: "";
+  display: block;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.mmw-ai-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px 10px 14px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.mmw-ai-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mmw-ai-title strong {
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+}
+
+.mmw-ai-title span {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.mmw-ai-dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.mmw-ai-dot.is-off {
+  background: var(--text-secondary);
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+.mmw-ai-icon-btn,
+.mmw-ai-close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.mmw-ai-icon-btn:hover,
+.mmw-ai-close:hover {
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.mmw-ai-icon-btn.is-on {
+  border-color: var(--border);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* ---------- 对话区 ---------- */
+
+.mmw-ai-thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+}
+
+.mmw-ai-msg {
+  max-width: 92%;
+  font-size: 13.5px;
+  line-height: 1.72;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mmw-ai-msg.is-user {
+  align-self: flex-end;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px 12px 3px 12px;
+  background: var(--accent-soft);
+}
+
+/* 助手气泡：左侧墨绿批注线，像写在页边的笔记 */
+.mmw-ai-msg.is-assistant {
+  align-self: flex-start;
+  padding: 1px 0 1px 11px;
+  border-left: 2px solid var(--accent);
+  color: var(--text);
+}
+
+.mmw-ai-msg.is-error {
+  align-self: flex-start;
+  padding: 8px 12px;
+  border: 1px dashed #b4553f;
+  border-radius: 10px;
+  background: rgba(180, 85, 63, 0.08);
+  color: #9c4a37;
+  font-size: 12.5px;
+}
+
+[data-mode="dark"] .mmw-ai-msg.is-error {
+  border-color: rgba(226, 138, 112, 0.5);
+  color: #e08a70;
+  background: rgba(226, 138, 112, 0.1);
+}
+
+/* 动作回执：一行小字 + 可选结果列表 */
+.mmw-ai-receipt {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 9px 11px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.mmw-ai-receipt-line {
+  display: flex;
+  gap: 7px;
+  align-items: baseline;
+  line-height: 1.6;
+}
+
+.mmw-ai-receipt-line::before {
+  content: "↳";
+  flex: none;
+  color: var(--accent);
+}
+
+.mmw-ai-hits {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mmw-ai-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mmw-ai-item:hover {
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.mmw-ai-item-kind {
+  flex: none;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.mmw-ai-item-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 550;
+}
+
+/* ---------- 空态 ---------- */
+
+.mmw-ai-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 6px 2px 2px;
+}
+
+.mmw-ai-empty p {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text);
+}
+
+.mmw-ai-empty small {
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.mmw-ai-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.mmw-ai-chip {
+  padding: 6px 11px;
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.mmw-ai-chip:hover {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+/* ---------- 加载态 ---------- */
+
+.mmw-ai-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.mmw-ai-dots {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.mmw-ai-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.45;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mmw-ai-dots i {
+    animation: mmw-ai-pulse 1.05s ease-in-out infinite;
+  }
+
+  .mmw-ai-dots i:nth-child(2) {
+    animation-delay: 0.16s;
+  }
+
+  .mmw-ai-dots i:nth-child(3) {
+    animation-delay: 0.32s;
+  }
+
+  .mmw-ai-panel {
+    animation: mmw-ai-in 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+@keyframes mmw-ai-pulse {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes mmw-ai-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- 输入区 ---------- */
+
+.mmw-ai-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 12px 6px;
+  border-top: 1px dashed var(--border);
+}
+
+.mmw-ai-form textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 118px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+}
+
+.mmw-ai-form textarea:focus {
+  border-color: var(--accent);
+}
+
+.mmw-ai-form textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.75;
+}
+
+.mmw-ai-send {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--bg);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.mmw-ai-send:disabled {
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.mmw-ai-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 12px 10px;
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
+.mmw-ai-foot kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 10px;
+}
+
+/* ---------- 配置视图 ---------- */
+
+.mmw-ai-config {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+}
+
+.mmw-ai-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mmw-ai-field label {
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.mmw-ai-field input {
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.mmw-ai-field input:focus {
+  border-color: var(--accent);
+}
+
+.mmw-ai-key-row {
+  display: flex;
+  gap: 6px;
+}
+
+.mmw-ai-key-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.mmw-ai-note {
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.mmw-ai-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.mmw-ai-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mmw-ai-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mmw-ai-btn.is-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.mmw-ai-btn:hover {
+  border-color: var(--accent);
+}
+
+/* ---------- 响应式：窄屏改底部抽屉 + 圆钮 ---------- */
+
+@media (max-width: 1279.98px) {
+  .mmw-ai-tab {
+    display: none;
+  }
+
+  .mmw-ai-fab {
+    display: inline-flex;
+  }
+
+  .mmw-ai-panel {
+    top: auto;
+    left: 14px;
+    right: 14px;
+    bottom: 84px;
+    width: auto;
+    height: min(68vh, 540px);
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .mmw-ai-panel {
+    left: 10px;
+    right: 10px;
+    bottom: 76px;
+    height: min(72vh, 520px);
+  }
+
+  .mmw-ai-msg {
+    max-width: 96%;
+    font-size: 13px;
+  }
+}

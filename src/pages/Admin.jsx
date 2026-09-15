@@ -439,12 +439,17 @@ export default function Admin() {
         <Link to="/blog" className="admin-btn admin-btn-text">
           ← 返回站点
         </Link>
-        <button className="admin-btn admin-btn-primary" onClick={beginCreate}>
-          ＋ 写新文章
-        </button>
-        <button className="admin-btn" onClick={backup} title="把全部 Markdown 打包下载">
-          ⬇ 备份全部
-        </button>
+        <div className="admin-head-group">
+          <button className="admin-btn admin-btn-primary" onClick={beginCreate}>
+            ＋ 写新文章
+          </button>
+          <button className="admin-btn" onClick={backup} title="把全部 Markdown 打包下载">
+            ⬇ 备份全部
+          </button>
+          <Link to="/admin/git" className="admin-btn" title="看仓库状态、提交并推送">
+            版本手账
+          </Link>
+        </div>
       </div>
 
       <header className="admin-list-head">

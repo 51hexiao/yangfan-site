@@ -25,6 +25,15 @@ export default function ThemeToggle() {
     localStorage.setItem(STORAGE_KEY, theme.id);
   }, [theme]);
 
+  /* 侧边小管家也能换配色：它广播事件，这里跟着高亮，避免两处状态打架 */
+  useEffect(() => {
+    const onThemeChange = (e) => {
+      if (getThemeById(e.detail)) setThemeId(e.detail);
+    };
+    window.addEventListener("mmw:theme-change", onThemeChange);
+    return () => window.removeEventListener("mmw:theme-change", onThemeChange);
+  }, []);
+
   /* 点面板外面或按 Esc 关闭 */
   useEffect(() => {
     if (!open) return;

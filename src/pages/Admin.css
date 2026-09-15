@@ -1017,3 +1017,12 @@
   scroll-margin-top: 90px;
   transition: box-shadow 0.35s ease, border-color 0.35s ease;
 }
+
+
+/* ---------- 顶栏右侧操作组（写新文章 / 备份 / 版本手账入口） ---------- */
+.admin-head-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}

@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# 内容回收站：只在本地留底，不进仓库（否则 add -A 会把"已删除"的文件复活进历史）
+posts/.trash/
+explore/.trash/
+
+# 环境变量：含高德 AMAP Key / 安全密钥，禁止入库（本地文件保留）
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

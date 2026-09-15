@@ -385,6 +385,14 @@ npm run preview  # 本地预览构建产物
 - **已推送部署并线上复验（commit 1645700）**：地图出图钉（key 进 chunk Explore-DRgQi3hC.js）、标题「探索 · 足迹 · 肥仔妙妙屋」、rss/sitemap 为 yangfan-site/#/ 真实地址、工具条 4 钮正常。排查技巧：① GitHub Pages 的 HTML/JS 有 ~10 分钟 CDN 缓存，验证新部署用「内容寻址的新 chunk 文件名是否 200」最可靠（HTML 引用可能还是缓存的旧哈希）；② 无 gh CLI 且 API 限流时，可用 `git credential fill` 取凭据调 Actions API 查 run 状态。
 - 上线前清单剩余：高德控制台给 key 配域名白名单（51hexiao.github.io）。
 
+### 2026-09-15 更新：小管家模块（AI 站内助手 + 版本手账）
+- **版本手账** `plugins/git-desk.js`（322 行，零依赖）+ `/admin/git`（`AdminGit.jsx/.css`）：写作台的 Git 面板——读取分支/远程/领先落后/最近一版与变更清单（porcelain -z 解析，正确处理重命名条目，conflicted 单独分组提示手动解决），支持「提交一版」「推送」「提交并推送」。**安全设计**：execFile+参数数组防注入、动作白名单（无 reset/checkout/force）、写操作互斥、GIT_TERMINAL_PROMPT=0、首推自动 -u、错误人性化映射；彻底移除步骤写在文件头注释。与 local-editor 一样仅 dev 存在，生产不打包。
+- **AI 小管家** `SiteAssistant.jsx/.css`（659 行）：全站常驻悬浮助手（右侧留白书签/窄屏圆钮），BYOK 直连 DeepSeek/OpenAI/通义/Moonshot（key 只存浏览器 localStorage，仓库与产物无密钥）；站内上下文注入 + 动作指令白名单（仅导航/换主题/搜索，禁止编造内容）；80 字手账批注口吻。**已 DEV 门控**（与写作台同待遇，生产不打包）。
+- **节奏调优**：路由过场 ROUTE_LOADER_MS 1500→380、withMinDelay 420→180——高频写作场景速度优先，帆船仪式感仅在冷加载可见。
+- **收尾三改进（本次评审落地）**：① `.gitignore` 排除 `posts/.trash/`、`explore/.trash/`（add -A 不再把"已删除"文件复活进历史），并 `git rm --cached` 解除已跟踪的 21 个 trash 文件；② SiteAssistant 改 lazy + Suspense 包裹并 DEV 门控（实测 dist 无 mmw 代码）；③ 对话历史存 sessionStorage（刷新不丢、关页即清，上限 40 条，头部加「⌫ 清空对话」）。
+- 顺带：`main.jsx` 为 HashRouter（GH Pages 无 404 转发的标准解），dev 访问管理页须用 `/#/admin`、`/#/admin/git` 形式。
+- 验收：lint 0 警告、build 通过（dist 无 AdminGit/SiteAssistant 代码）；实测版本手账（分支/远程/43 处变更清单渲染）、小管家打开/未配置提示/历史 sessionStorage 持久化（刷新恢复）/清空。
+
 ## 六、路线图
 
 ### 第 1 步：Markdown 内容层（✅ 已完成，2026-09-08）

@@ -8,7 +8,7 @@ import { posts } from "./utils/post.js";
 import { counts, records } from "./utils/explore.js";
 
 /* 懒加载并保证加载动画至少展示一小段时间，本地跳转也看得见 */
-const withMinDelay = (load, ms = 420) =>
+const withMinDelay = (load, ms = 180) =>
   Promise.all([load(), new Promise((r) => setTimeout(r, ms))]).then(([m]) => m);
 
 const Blog = lazy(() => withMinDelay(() => import("./pages/Blog.jsx")));
@@ -19,12 +19,15 @@ const Explore = lazy(() => withMinDelay(() => import("./pages/Explore.jsx")));
 const ExplorePost = lazy(() => withMinDelay(() => import("./pages/ExplorePost.jsx")));
 const Projects = lazy(() => withMinDelay(() => import("./pages/Projects.jsx")));
 const About = lazy(() => withMinDelay(() => import("./pages/About.jsx")));
-// 写作台只存在于本地：生产构建不打包这两个页面（路由同样受 DEV 门控），上线后不可达
+// 写作台只存在于本地：生产构建不打包这三个页面（路由同样受 DEV 门控），上线后不可达
 const Admin = import.meta.env.DEV ? lazy(() => import("./pages/Admin.jsx")) : null;
+// 小管家同样是站长私用工具：生产构建不打包（配模型的密钥也是站长自己的）
+const SiteAssistant = import.meta.env.DEV ? lazy(() => import("./components/SiteAssistant.jsx")) : null;
+const AdminGit = import.meta.env.DEV ? lazy(() => import("./pages/AdminGit.jsx")) : null;
 const ExploreWrite = import.meta.env.DEV ? lazy(() => import("./pages/ExploreWrite.jsx")) : null;
 
 /* 站内跳转时帆船动画的展示时长（毫秒）——想多看一会儿就把它调大 */
-const ROUTE_LOADER_MS = 1500;
+const ROUTE_LOADER_MS = 380;
 
 /* React 19 + react-router v7 的站内导航走 transition，lazy 组件挂起时 React 保留旧界面、
    不渲染 Suspense fallback；这里用 location.key 自行判断「已跳转、未揭幕」，
@@ -157,6 +160,7 @@ export default function App() {
             <Route path="/projects" element={<Projects />} />
             <Route path="/about" element={<About />} />
             {import.meta.env.DEV && <Route path="/admin" element={<Admin />} />}
+            {import.meta.env.DEV && <Route path="/admin/git" element={<AdminGit />} />}
             <Route path="*" element={<Home />} />
           </Routes>
         </Suspense>
@@ -179,6 +183,8 @@ export default function App() {
               {" · "}
               <Link to="/admin">写作</Link>
               {" · "}
+              <Link to="/admin/git">版本</Link>
+              {" · "}
               <Link to="/explore/write">记一笔</Link>
             </span>
           )}
@@ -186,6 +192,13 @@ export default function App() {
       </footer>
 
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
+
+      {/* 全站常驻的站内小管家：右侧留白带书签 / 窄屏圆钮，键盘可操作（仅本地 dev） */}
+      {SiteAssistant && (
+        <Suspense fallback={null}>
+          <SiteAssistant />
+        </Suspense>
+      )}
     </>
   );
 }

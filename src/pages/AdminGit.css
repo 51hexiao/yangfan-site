@@ -1,0 +1,363 @@
+/* ============================================================
+   版本手账 /admin/git —— 写作台的 Git 面板
+   与 Admin.css 同源：共用 .admin 纸面变量（--paper/--ink/--line/--cream）
+   与 admin-btn / admin-note / admin-msg 等组件类，只补 Git 专属版式。
+   后期上线删除 admin 时随 AdminGit.jsx 一并移除。
+   ============================================================ */
+
+.git-wrap {
+  max-width: 1000px;
+}
+
+/* ---------- 仓库状态卡：贴了胶带的纸 ---------- */
+.git-hero {
+  position: relative;
+  margin-bottom: 28px;
+  padding: 28px 26px 24px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.git-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 26px;
+  right: 26px;
+  height: 6px;
+  background: repeating-linear-gradient(-45deg, var(--cream) 0 10px, transparent 10px 20px);
+  border-radius: 0 0 4px 4px;
+}
+
+.git-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(212px, 1fr));
+  gap: 18px 24px;
+}
+
+.git-cell {
+  min-width: 0;
+}
+
+.git-cell-label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-2);
+  margin-bottom: 7px;
+}
+
+.git-cell-value {
+  display: block;
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.git-chip {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92rem;
+  padding: 4px 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+  background: var(--paper-2);
+}
+
+.git-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88rem;
+}
+
+.git-dim {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.git-pill {
+  display: inline-block;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px dashed currentColor;
+  margin-right: 8px;
+}
+
+.git-pill-ahead {
+  color: var(--ink);
+  background: var(--accent-soft);
+}
+
+.git-pill-behind {
+  color: #a9761c;
+}
+
+[data-mode="dark"] .git-pill-behind {
+  color: #e0b96a;
+}
+
+/* ---------- 小标题行 ---------- */
+.git-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--line);
+}
+
+.git-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.git-section-note {
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+
+/* ---------- 变更分组 ---------- */
+.git-group {
+  margin-bottom: 20px;
+}
+
+.git-group-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  margin-bottom: 7px;
+}
+
+.git-group-count {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.git-files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 4px 14px;
+}
+
+.git-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--line);
+}
+
+.git-file:last-child {
+  border-bottom: none;
+}
+
+.git-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.86rem;
+  color: var(--ink);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.git-file-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.git-staged {
+  font-size: 0.72rem;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.git-file-state {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+  min-width: 3.4em;
+  text-align: right;
+}
+
+/* 印章式状态方块：颜色即语义 */
+.git-mark {
+  width: 24px;
+  height: 24px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 7px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  border: 1px dashed currentColor;
+  flex-shrink: 0;
+}
+
+.git-mark-add {
+  color: var(--ink);
+  background: var(--accent-soft);
+}
+
+.git-mark-mod {
+  color: #a9761c;
+  background: rgba(169, 118, 28, 0.1);
+}
+
+.git-mark-del {
+  color: #b3392e;
+  background: rgba(179, 57, 46, 0.1);
+}
+
+.git-mark-new {
+  color: var(--ink-2);
+  background: var(--accent-soft);
+}
+
+.git-mark-bad {
+  color: #b3392e;
+  background: rgba(179, 57, 46, 0.14);
+}
+
+[data-mode="dark"] .git-mark-mod {
+  color: #e0b96a;
+  background: rgba(224, 185, 106, 0.14);
+}
+
+[data-mode="dark"] .git-mark-del,
+[data-mode="dark"] .git-mark-bad {
+  color: #f0a398;
+  background: rgba(240, 163, 152, 0.14);
+}
+
+/* ---------- 空态 ---------- */
+.git-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 24px;
+  background: var(--paper);
+  border: 1px dashed var(--line-strong);
+  border-radius: 14px;
+  text-align: center;
+}
+
+.git-empty-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.git-empty-desc {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+
+/* ---------- 提交区 ---------- */
+.git-commit {
+  position: relative;
+  margin-top: 28px;
+  padding: 24px 24px 20px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.git-commit-field {
+  display: block;
+}
+
+.git-commit-label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-2);
+  margin-bottom: 8px;
+}
+
+.git-commit textarea {
+  display: block;
+  width: 100%;
+  min-height: 84px;
+  resize: vertical;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.git-commit textarea::placeholder {
+  color: var(--ink-2);
+  opacity: 0.8;
+}
+
+.git-commit textarea:disabled {
+  opacity: 0.6;
+}
+
+.git-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.git-count {
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+@media (max-width: 560px) {
+  .git-hero,
+  .git-commit {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .git-file {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .git-path {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .git-count {
+    margin-left: 0;
+  }
+}
