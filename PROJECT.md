@@ -445,12 +445,19 @@ npm run preview  # 本地预览构建产物
 - **回退口子**：`public/avatar.jpg`（原证件照）与 `public/avatar-hero.jpg`（上一版插画，关于页 `About.jsx` L23 正在用）原样保留，首页要回退只需把 `<HeroAvatar />` 的 `src` 换成对应文件名。
 - 验收：lint 0 警告 0 错误（44 文件 / 104 规则，92ms）；build 通过（554ms，rss.xml 2 条、sitemap.xml 9 个地址），dist 内 `index-dn05rY0b.css` 含全部 hav- 类、`avatar-hero-2.png` 174,046 字节；用无头 Edge 实测首屏 —— light / celadon / dusk / harvest 四套配色 + 移动端（430×920）共 5 张截图逐张核对：头像居中完整无裁切、刻度环与虚线圈清晰、柔光随 accent 变色、网点可见，标题与按钮版式无错位无遮挡；另用页面内 computed-style 探针逐主题读取环 / 光晕 / 卫星点的实际计算色，7 套主题（light / dark / celadon / rouge / brine / dusk / harvest）取值互不相同，且与 `--accent` 混白的预期一致。
 
-### 2026-09-16 更新：落款与姓名收口单一数据源（关闭遗留待办）
-- **起因**：处理「船夫称呼改 0917」一节留下的待办——`ExplorePost.jsx` 落款硬编码不消费 `profile.sign`。排查时发现同类硬编码不止一处，一并收口。
+### 2026-09-16 更新：落款与姓名收口单一数据源（关闭遗留待办）- **起因**：处理「船夫称呼改 0917」一节留下的待办——`ExplorePost.jsx` 落款硬编码不消费 `profile.sign`。排查时发现同类硬编码不止一处，一并收口。
 - **改动 5 处（6 个硬编码点）**：① `ExplorePost.jsx` 详情页落款 → `{profile.sign}`；② `TrailReport.jsx` 报告弹层页脚 `report-sign` → `{profile.sign}`；③ 同文件 canvas 海报戳记 `stamp` → `` `${profile.sign} · 日期` ``；④ `sharePoster.js` 分享图落款（原文案为「—— 杨帆 · 写于妙妙屋」，与 `sign` 仅标点之差，统一为 `profile.sign`）；⑤ `Home.jsx` hero 姓名「杨帆」→ `{profile.name}`、`usePageTitle.js` 默认标题内姓名 → `${profile.name}`。涉及文件均补 `import { profile } from "../data/profile.js"`（Home 已有）。
 - **刻意保留**：`index.html` 的 meta description 含「杨帆」——静态 HTML 引用不到 JS 数据，且它只是 JS 接管前的 SEO 兜底文案，运行时会被 `usePageTitle` 覆盖；代码注释里的「杨帆」为历史说明，不属数据。
 - **效果**：改 `profile.name` 或 `profile.sign` 一处，关于页、首页 hero、详情页/报告/两张海报的落款、浏览器默认标题全部同步。
 - 验收：`grep` 复核 `src/` 与 `index.html` 无残留硬编码（余下均为数据源/注释/静态兜底）；lint 0 警告 0 错误（44 文件 / 104 规则）；build 通过（344ms，rss.xml 2 条、sitemap.xml 9 个地址）。
+
+### 2026-09-16 更新：修复 CI 空 secrets 注入顶掉 .env（线上地图/rss 域名故障）
+- **起因**：推送 609e8ee 后线上复验发现——线上 chunk 无高德 key、rss.xml 全是占位域名 `example.com`，地图实际处于「待通电」降级态。
+- **根因**：`deploy.yml` 的 Build 步骤用 `SITE_URL: ${{ secrets.SITE_URL }}` 等注入环境变量，而仓库并未配置这三个 secrets——GitHub Actions 对未配置的 secret 注入的是**空字符串**（变量存在、值为空）；Vite 的 env 优先级是 `process.env` > `.env` 文件，空串于是顶掉了随仓库提交的 `.env` 有效值。`loadEnv(mode, cwd, "")`（site-meta.js）与 `import.meta.env.VITE_AMAP_KEY`（amap.js）双双拿到空值。即自 2aadd0d 引入 secrets 注入起，线上地图与 rss 域名一直是坏的，只是一直没复验到。
+- **修复（`vite.config.js` 开头 3 行循环）**：`SITE_URL / VITE_AMAP_KEY / VITE_AMAP_SECURITY` 三键若在 `process.env` 中是空字符串，直接 `delete` 掉——空串视为未配置，让 `.env` 兜底；日后真在仓库配了 secrets（非空）时注入照常生效。
+- **验证**：本地用 `SITE_URL="" VITE_AMAP_KEY="" VITE_AMAP_SECURITY="" npm run build` 精确模拟 CI 空注入条件——rss.xml 恢复真实域名 `51hexiao.github.io/yangfan-site`、高德 key 正常进 chunk。推送后线上复验：chunk 含高德 key、rss 为真实地址、`avatar-hero-2.png` 200。
+- **踩坑记录**：给 GitHub Actions 的 `env:` 块写 `${{ secrets.X }}` 时，secret 不存在 ≠ 变量不存在——会得到一个空字符串变量。依赖「变量未定义」做兜底判断的代码（`.env` 回退、`||` 默认值对此场景有效但 `process.env` 优先级在 Vite 里更靠前）会被静默击穿。要么按本节的空串删除法处理，要么在 workflow 里用 `if` 条件动态拼接 env。
+- **连带发现**：workflow 注释建议把 key 放 secrets「保持仓库源码干净」——实际上 `.env` 已随仓库提交且 key 本就打进公开 bundle，secrets 在此处属于可选项，真正的防盗用仍是高德域名白名单（待办不变）。
 
 ## 六、路线图
 
