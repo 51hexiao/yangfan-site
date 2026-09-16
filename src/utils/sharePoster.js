@@ -1,6 +1,8 @@
 // 分享海报：把一篇文章/一笔足迹画成手账风分享图（1080×1440），纯 canvas 零依赖
 // 内容统一走「kicker + 标题（自动换行）+ 摘要（自动换行）+ 信息行 + 落款」结构
 
+import { profile } from "../data/profile.js";
+
 const W = 1080;
 const H = 1440;
 const INK = "#173f37";
@@ -108,10 +110,10 @@ export function downloadSharePoster({ kicker, title, excerpt, meta }) {
   ctx.font = font(28);
   ctx.fillText(meta, 100, y);
 
-  // 落款
+  // 落款（取自站长档案单一数据源）
   ctx.fillStyle = INK;
   ctx.font = font(30, 700);
-  const sign = "—— 杨帆 · 写于妙妙屋";
+  const sign = profile.sign;
   ctx.fillText(sign, W - 100 - ctx.measureText(sign).width, H - 120);
 
   const a = document.createElement("a");

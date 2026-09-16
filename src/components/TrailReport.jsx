@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cityOf, gapDays, pathKm, trail } from "../utils/explore.js";
+import { profile } from "../data/profile.js";
 import "./TrailReport.css";
 
 // —— 汇总数据 ——
@@ -165,7 +166,7 @@ function drawPoster(data) {
   // 落款
   ctx.fillStyle = SOFT;
   ctx.font = font(26);
-  const stamp = `—— 杨帆，写于妙妙屋 · ${new Date().toLocaleDateString("zh-CN")}`;
+  const stamp = `${profile.sign} · ${new Date().toLocaleDateString("zh-CN")}`;
   ctx.fillText(stamp, W - 100 - ctx.measureText(stamp).width, H - 104);
 
   return canvas;
@@ -311,7 +312,7 @@ export default function TrailReport({ onClose }) {
         )}
 
         <footer className="report-foot">
-          <span className="report-sign">—— 杨帆，写于妙妙屋</span>
+          <span className="report-sign">{profile.sign}</span>
           <div className="report-actions">
             <button type="button" className="ex-btn ex-btn-primary" onClick={downloadPoster}>
               📸 下载海报 PNG

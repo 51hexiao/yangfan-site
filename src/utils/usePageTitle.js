@@ -1,7 +1,8 @@
 import { useEffect } from "react";
+import { profile } from "../data/profile.js";
 
 const BASE = "肥仔妙妙屋";
-const DEFAULT_TITLE = `${BASE} · 杨帆的手记、足迹与私藏`;
+const DEFAULT_TITLE = `${BASE} · ${profile.name}的手记、足迹与私藏`;
 
 function setMeta(attr, key, content) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);

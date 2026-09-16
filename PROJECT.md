@@ -408,6 +408,50 @@ npm run preview  # 本地预览构建产物
 - **接入**：`buildSystemPrompt` 头部由泛化管家辞令改为船夫身份 + `personaText()`；面板标题「妙妙屋小管家」→「船夫」；空态与问候 chips 换船夫口吻（「杨帆是谁？」「坐船去足迹地图」等）。
 - 验收：lint 0 警告、build 通过；浏览器实测系统提示词注入链路（【站长】【外号来历】【喜欢】【性子】【眼下目标】+ 六行人设全数在场）、关于页渲染无回归（3 段自述/3 条在做/8 技能）、面板署名「船夫」。问卷文件（管家问卷.md）已消费删除。
 
+### 2026-09-16 更新：船夫对站长的称呼改「0917」
+- **起因**：站长要求船夫在对话里提到站长时不再直呼本名，改称「0917」；页面展示位（首页 hero / 关于页 / 落款）保持「杨帆」不变——AI 称谓与页面展示分属两条通道，刻意区分。
+- **改动 4 处**：① `src/data/profile.js` `persona.relation`「和站长杨帆一起长大的搭子…」→「和站长 0917 一起长大的搭子…」；② 同文件 `persona.addressing`「称呼访客「坐船人」或「来访者」；称站长「杨帆」」→「提到站长时直呼「0917」」；③ 同文件 `profileText()` 首行【站长】的取值由 `p.name` 改为字面量「0917」，并在函数上方补注释说明分工（AI 称谓用「0917」、页面展示用 `profile.name`「杨帆」，改称呼别动 `profile.name`），防后人误改；④ `src/components/SiteAssistant.jsx` `buildSystemPrompt()` 首句身份介绍「和站长杨帆一起长大的搭子」→「和站长 0917 一起长大的搭子」。
+- **连带一致性**：空态示例提问 `GREETING_CHIPS`（SiteAssistant.jsx L39）「杨帆是谁？」→「0917 是谁？」——该 chip 是访客可直接点击的问题，留着旧名会与船夫的回答口径打架。
+- **刻意不改**：`profile.name`（杨帆）、首页 hero 姓名、关于页动态取值、详情页落款——均为页面展示位，本名照旧。
+- **遗留观察**：`ExplorePost.jsx:134` 的落款是硬编码「—— 杨帆，写于妙妙屋」，并未消费 `profile.js` 里的 `sign` 字段（该字段目前全站无人引用），与「单一数据源」原则不符，日后改落款文案容易漏改；本次未动，留作待办。**（已于同日关闭，见「落款与姓名收口单一数据源」节。）**
+- 验收：lint 0 警告 0 错误（42 文件 / 104 规则）；build 通过（577ms，rss.xml 2 条、sitemap.xml 9 个地址）。
+
+### 2026-09-16 更新：首页 Hero 鼠标响应式涟漪光圈
+- **起因**：站长要求首页加跟随鼠标的光效，要跟 7 套主题自动换色、细腻克制不喧宾夺主、只作用首页。
+- **新增 2 个文件 / 改动 1 处**：新增 `src/components/CursorGlow.jsx`（行为）与 `src/components/CursorGlow.css`（样式）；`src/pages/Home.jsx` 引入并挂在 `.hero` 内首位（在 `.container hero-inner` 之前）——全站仅此一处引用，其它页面路由切换即卸载。
+- **光效构成**：三层光——620px 柔光（lerp 0.09）+ 340px 外圈 + 168px 内圈（lerp 0.14 / 0.22），三档跟随速度拉开轻微视差；指针每走 130px 在原地甩一圈涟漪（1.5s 扩散淡出，两次涟漪间隔下限 240ms），点击再补一圈更重的（1.9s、线宽 1.5px）。涟漪用 `animationend` + 2600ms 双保险摘除，DOM 节点总数封顶 11，防止长停留堆积。
+- **配色不写死**：`--glow` / `--glow-line` 由主题令牌 `--accent` 按 44% / 58% 与白色混合（`color-mix`），外层 `@supports` 为老浏览器保留中性微光兜底。柔光刻意用「纯色底 + mask 径向衰减」而非径向渐变背景，这样换主题时 `background-color` 能平滑过渡，光色是渐变过去而不是跳变。
+- **层级与边界**：`.cursor-glow` 取 `z-index: 0`（与 `.hero::after` 同级、叠在其下，光在下沿自然淡出），始终低于 `.hero .container` 的 `z-index: 2`，只在留白处浮现、不盖标题正文；`pointer-events: none` 不拦点击；组件卸载时 `replaceChildren()` 清掉还在动的涟漪。
+- **降级**：触摸设备（`hover: none` / `pointer: coarse`）与系统 `prefers-reduced-motion: reduce` 下直接不渲染——JS 侧 `matchMedia` 判断 + CSS 侧 `display: none` 双保险。
+- **性能**：rAF 只在指针移动 / 页面滚动时启动，三层都到位（差 < 0.25px）即自停，不做空转。
+- 验收：lint 0 警告 0 错误（43 文件 / 104 规则）；build 通过（331ms，rss.xml 2 条、sitemap.xml 9 个地址）；用无头 Edge + CDP 派发真实鼠标轨迹实测——首页 `.hero` 内挂载并激活（`is-live`）、柔光跟至落点、走过 5 个采样点生成 2 圈涟漪、光层 z-index 0 低于正文 2；7 套主题（light / dark / celadon / rouge / brine / dusk / harvest）柔光计算色逐一不同，且与「`--accent` 44% 混白」的手算结果吻合；站内点「作品集」跳转后光层不再存在；移动端设备模拟与 `prefers-reduced-motion` 下均不挂载。
+
+### 2026-09-16 更新：首页 Hero 头像换成新插画
+- **起因**：站长提供新的人物插画（面部特写，黑白线条与彩色网点结合），要求替换首页当前展示的照片，并保持原有版式、尺寸与主题适配效果。
+- **新增 1 个文件 / 改动 1 行**：新图用 `image-processing` 技能等比缩放到宽 720px（831×1024 → 720×887，JPG 质量 90）落盘为 `public/avatar-hero.jpg`（227 KB，按最大 216px 的圆形展示位留足 2× DPR 余量）；`src/pages/Home.jsx` L85 图片地址由 `${import.meta.env.BASE_URL}avatar.jpg` 改为 `${import.meta.env.BASE_URL}avatar-hero.jpg`。
+- **刻意不覆盖 `avatar.jpg`**：`public/avatar.jpg`（358×441 白底证件照）被首页 hero 与关于页 `About.jsx` 共用，直接覆盖会连带改掉关于页；本次只动首页展示位，故新增独立文件、关于页保持原样。日后若要同步关于页，把 `About.jsx` L23 的地址指向 `avatar-hero.jpg` 即可。
+- **版式与尺寸零改动**：`.hero-avatar-wrap` 的 `clamp(140px, 22vw, 216px)`、圆形裁切、`object-fit: cover` + `object-position: center`、邮票虚线环 / 白色描边 / hover 上浮等效果全部沿用，未改任何 CSS。新图宽高比 0.811（831:1024）与原图 0.812（358:441）基本一致，居中裁切后人脸完整居中、未被切掉。
+- **主题适配**：未动主题令牌与任何样式，头像外观仍由 `--surface` 背景与半透明白色环驱动，七套配色下表现与原图一致。
+- 验收：lint 0 警告 0 错误（43 文件 / 104 规则，120ms）；build 通过（2.10s，rss.xml 2 条、sitemap.xml 9 个地址），dist 内 avatar-hero.jpg 227,262 字节；用无头 Edge 打开构建产物实测首屏——默认「暖纸」与深色「墨绿夜」两套配色下，右侧圆形头像均显示为新插画、人脸完整居中，外圈虚线环与白色描边正常，hero 左侧标题 / 按钮 / 联系方式版式无错位、图片无形变；关于页图片引用保持 `avatar.jpg` 未改动。
+
+### 2026-09-16 更新：首页 Hero 头像展示区重构（多层轨道环 + 指针微交互）
+- **起因**：站长要求把首页 hero 头像展示区做得更精致、更有层次（多层轨道环、柔光、纹理质感与鼠标微交互），须沿用现有设计令牌、颜色随 7 套主题自动适配、与首页手账调性同源、克制不喧宾夺主；同时把头像一个换成本次新插画。
+- **新增 2 个文件 / 改动 2 个文件 / 新增 1 张图**：新增 `src/components/HeroAvatar.jsx`（结构 + 指针行为）与 `src/components/HeroAvatar.css`（全部样式）；`src/pages/Home.jsx` L10 引入、L84 用 `<HeroAvatar />` 替换原来的 `.hero-avatar-wrap` 静态结构；`src/index.css` 移除旧的 `.hero-avatar-wrap` / `.hero-avatar` 样式块（343–404 行）及 760px 断点、`prefers-reduced-motion` 中的相关条目，原地留注释指向 `HeroAvatar.css`；新插画（311×310 波普肖像）原图落盘 `public/avatar-hero-2.png`（174,046 字节，按 216px 展示位约 1.44×，留 retina 余量）。
+- **六层结构（外→内）**：柔光底晕（`radial-gradient` + `blur(18px)`，9s 呼吸）→ 外圈罗盘刻度环（`repeating-conic-gradient` 每 5° 一根 0.5° 细线，再用 `mask` 只留最外 2.8–3.4px 细带，120s 匀速自转）→ 卫星光点（28s 公转，accent 辉光 + 1.5px 白描边）→ 邮票虚线环（沿用原 `2px dashed` 设计语言，改由 accent 着色）→ 奶油压边环（`--cream` 1px + 外发光，像贴纸透光暖边）→ 相纸白描边头像（4px 白描边 + accent 外发光）。
+- **相纸质感**：圆片内叠 4px 网点纸（`radial-gradient` + `soft-light`，0.48 不透明度，与插画的波普网点同源）、顶光 + 暗角双层 `radial-gradient` 给球面感、hover 斜掠扫光（`mix-blend-mode: screen`，只走一次）。
+- **配色不写死**：环 / 柔光 / 卫星点全部走 `color-mix(in srgb, var(--accent) X%, …)`——刻度环 62% 混透明、邮票环 58% 白 + 42% accent、头像外发光 44% 混透明；白色与 `--cream` 负责「相纸 + 奶油」对比（hero 底色恒为深墨绿遮罩，白色环在任何主题下都成立）。
+- **指针微交互（3D 轻倾 + 光晕跟随）**：`HeroAvatar.jsx` 用 `pointermove` 把指针在头像框内的归一化坐标写进 `--hav-tilt-x/y`（±5.5deg）与 `--hav-mx/my`；`.hav-stage` 据此做 `rotateX/rotateY`，柔光重心跟着指针走；rAF 节流（每帧最多写一次），`pointerleave` / `pointercancel` 立即清变量回正。
+- **边界与安全**：装饰层全部 `pointer-events: none`，不拦首页任何点击（沿用涟漪光圈那次踩坑结论）；只在 `(hover: hover) and (pointer: fine)` 下挂 JS，触摸设备与 `prefers-reduced-motion: reduce` 直接不挂载，CSS 侧同步停掉自转 / 呼吸 / 位移、`display: none` 扫光；监听与 rAF 在组件卸载时全部解绑。
+- **回退口子**：`public/avatar.jpg`（原证件照）与 `public/avatar-hero.jpg`（上一版插画，关于页 `About.jsx` L23 正在用）原样保留，首页要回退只需把 `<HeroAvatar />` 的 `src` 换成对应文件名。
+- 验收：lint 0 警告 0 错误（44 文件 / 104 规则，92ms）；build 通过（554ms，rss.xml 2 条、sitemap.xml 9 个地址），dist 内 `index-dn05rY0b.css` 含全部 hav- 类、`avatar-hero-2.png` 174,046 字节；用无头 Edge 实测首屏 —— light / celadon / dusk / harvest 四套配色 + 移动端（430×920）共 5 张截图逐张核对：头像居中完整无裁切、刻度环与虚线圈清晰、柔光随 accent 变色、网点可见，标题与按钮版式无错位无遮挡；另用页面内 computed-style 探针逐主题读取环 / 光晕 / 卫星点的实际计算色，7 套主题（light / dark / celadon / rouge / brine / dusk / harvest）取值互不相同，且与 `--accent` 混白的预期一致。
+
+### 2026-09-16 更新：落款与姓名收口单一数据源（关闭遗留待办）
+- **起因**：处理「船夫称呼改 0917」一节留下的待办——`ExplorePost.jsx` 落款硬编码不消费 `profile.sign`。排查时发现同类硬编码不止一处，一并收口。
+- **改动 5 处（6 个硬编码点）**：① `ExplorePost.jsx` 详情页落款 → `{profile.sign}`；② `TrailReport.jsx` 报告弹层页脚 `report-sign` → `{profile.sign}`；③ 同文件 canvas 海报戳记 `stamp` → `` `${profile.sign} · 日期` ``；④ `sharePoster.js` 分享图落款（原文案为「—— 杨帆 · 写于妙妙屋」，与 `sign` 仅标点之差，统一为 `profile.sign`）；⑤ `Home.jsx` hero 姓名「杨帆」→ `{profile.name}`、`usePageTitle.js` 默认标题内姓名 → `${profile.name}`。涉及文件均补 `import { profile } from "../data/profile.js"`（Home 已有）。
+- **刻意保留**：`index.html` 的 meta description 含「杨帆」——静态 HTML 引用不到 JS 数据，且它只是 JS 接管前的 SEO 兜底文案，运行时会被 `usePageTitle` 覆盖；代码注释里的「杨帆」为历史说明，不属数据。
+- **效果**：改 `profile.name` 或 `profile.sign` 一处，关于页、首页 hero、详情页/报告/两张海报的落款、浏览器默认标题全部同步。
+- 验收：`grep` 复核 `src/` 与 `index.html` 无残留硬编码（余下均为数据源/注释/静态兜底）；lint 0 警告 0 错误（44 文件 / 104 规则）；build 通过（344ms，rss.xml 2 条、sitemap.xml 9 个地址）。
+
 ## 六、路线图
 
 ### 第 1 步：Markdown 内容层（✅ 已完成，2026-09-08）

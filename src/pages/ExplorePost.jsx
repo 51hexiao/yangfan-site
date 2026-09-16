@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { profile } from "../data/profile.js";
 import { gapDays, cityOf, trail, TYPE_LABEL } from "../utils/explore.js";
 import { iconEmoji } from "../utils/exploreIcons.js";
 import TrailMap from "../components/TrailMap.jsx";
@@ -131,7 +132,7 @@ export default function ExplorePost() {
             </div>
           )}
 
-          <p className="ex-detail-sign">—— 杨帆，写于妙妙屋</p>
+          <p className="ex-detail-sign">{profile.sign}</p>
         </div>
 
         <aside className="ex-rail">
