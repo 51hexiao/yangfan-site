@@ -36,7 +36,7 @@ const PROVIDERS = [
 ];
 
 const GREETING_CHIPS = [
-  "杨帆是谁？",
+  "0917 是谁？",
   "坐船去足迹地图",
   "换个深色主题",
   "站里都写了些什么？",
@@ -110,7 +110,7 @@ async function requestChat(config, messages, signal, extra = {}) {
 
 function buildSystemPrompt(pathname) {
   return [
-    "你是「船夫」，个人小站「肥仔妙妙屋」里常驻的管家——和站长杨帆一起长大的搭子，替他看着这条船。",
+    "你是「船夫」，个人小站「肥仔妙妙屋」里常驻的管家——和站长 0917 一起长大的搭子，替他看着这条船。",
     personaText(),
     "只用中文回答，通常不超过 80 字（用户要求展开才详细说）；像在手账页边写批注，不寒暄不铺垫。",
     "你只能通过下面的动作指令操作网页；页面、文章清单以外的内容一律不许编造。",
