@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import posts from "../utils/post.js";
 import projects from "../data/projects.js";
+import { profile } from "../data/profile.js";
 import { records } from "../utils/explore.js";
 import { collections } from "../data/collections.js";
 import { usePageTitle } from "../utils/usePageTitle.js";
@@ -63,7 +64,7 @@ export default function Home() {
             </div>
             <p className="hero-links">
               <a
-                href="https://github.com/51hexiao"
+                href={profile.contacts.github}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -72,7 +73,7 @@ export default function Home() {
               <span className="hero-links-sep" aria-hidden="true">
                 ·
               </span>
-              <a href="mailto:15279620917@162.com">
+              <a href={`mailto:${profile.contacts.email}`}>
                 邮箱 <span aria-hidden="true">↗</span>
               </a>
             </p>

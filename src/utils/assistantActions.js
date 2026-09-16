@@ -6,6 +6,7 @@ import { posts } from "./post.js";
 import { trail } from "./explore.js";
 import { collections, TYPE_LABEL as COLLECTION_TYPE_LABEL } from "../data/collections.js";
 import { THEMES, DEFAULT_THEME_ID, getThemeById } from "../data/themes.js";
+import { profileText } from "../data/profile.js";
 
 /* ---------- 1. 页面白名单 ---------- */
 
@@ -186,6 +187,7 @@ export function resolveModeTheme(input) {
 export function siteContextText() {
   const lines = [];
   lines.push("【站点】肥仔妙妙屋 · 个人网站（React + Vite 单页应用，内容多为示例，可以当真实数据用）");
+  lines.push(profileText());
   lines.push(
     `【页面】${ALL_PAGES.map((p) => `${p.label}=${p.path}`).join(" · ")}；文章详情=/blog/<slug>；足迹详情=/explore/<slug>`,
   );

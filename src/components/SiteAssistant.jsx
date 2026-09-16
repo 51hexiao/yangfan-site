@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { THEMES } from "../data/themes.js";
+import { personaText } from "../data/profile.js";
 import {
   findContent,
   labelOfPath,
@@ -35,10 +36,10 @@ const PROVIDERS = [
 ];
 
 const GREETING_CHIPS = [
-  "站里都写了些什么？",
-  "带我去看足迹地图",
+  "杨帆是谁？",
+  "坐船去足迹地图",
   "换个深色主题",
-  "私藏里有什么好物？",
+  "站里都写了些什么？",
 ];
 
 let seq = 0;
@@ -109,8 +110,9 @@ async function requestChat(config, messages, signal, extra = {}) {
 
 function buildSystemPrompt(pathname) {
   return [
-    "你是「肥仔妙妙屋」这个个人小站里的常驻小管家，说话温和、简短、口语化，像写在手账页边的批注。",
-    "只用中文回答，通常不超过 80 字，用户要求展开时才详细说。",
+    "你是「船夫」，个人小站「肥仔妙妙屋」里常驻的管家——和站长杨帆一起长大的搭子，替他看着这条船。",
+    personaText(),
+    "只用中文回答，通常不超过 80 字（用户要求展开才详细说）；像在手账页边写批注，不寒暄不铺垫。",
     "你只能通过下面的动作指令操作网页；页面、文章清单以外的内容一律不许编造。",
     "",
     "【输出格式】需要操作网页时，在回答的最后另起一行写动作指令：@@ACT {\"type\":\"...\"}@@",
@@ -429,7 +431,7 @@ export default function SiteAssistant() {
     if (!messages.length) {
       return (
         <div className="mmw-ai-empty">
-          <p>{configured ? "我在的。想逛哪儿、想搜什么，说一声就行。" : "还没接上模型，配好接口和密钥我就能干活了。"}</p>
+          <p>{configured ? "船在这儿。想逛哪儿、想搜什么，说一声。" : "还没接上模型，配好接口和密钥我就能干活了。"}</p>
           {configured ? (
             <>
               <small>我能帮你翻站内文章、跳页面、换配色深浅，也能陪你聊两句。</small>
@@ -532,7 +534,7 @@ export default function SiteAssistant() {
           <header className="mmw-ai-head">
             <span className={`mmw-ai-dot${configured ? "" : " is-off"}`} aria-hidden="true" />
             <div className="mmw-ai-title">
-              <strong>妙妙屋小管家</strong>
+              <strong>船夫</strong>
               <span>{view === "config" ? "设置" : configured ? config.model : "未配置"}</span>
             </div>
             {view === "chat" && messages.length > 0 && (
