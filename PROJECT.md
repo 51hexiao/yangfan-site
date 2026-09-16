@@ -451,13 +451,17 @@ npm run preview  # 本地预览构建产物
 - **效果**：改 `profile.name` 或 `profile.sign` 一处，关于页、首页 hero、详情页/报告/两张海报的落款、浏览器默认标题全部同步。
 - 验收：`grep` 复核 `src/` 与 `index.html` 无残留硬编码（余下均为数据源/注释/静态兜底）；lint 0 警告 0 错误（44 文件 / 104 规则）；build 通过（344ms，rss.xml 2 条、sitemap.xml 9 个地址）。
 
-### 2026-09-16 更新：修复 CI 空 secrets 注入顶掉 .env（线上地图/rss 域名故障）
-- **起因**：推送 609e8ee 后线上复验发现——线上 chunk 无高德 key、rss.xml 全是占位域名 `example.com`，地图实际处于「待通电」降级态。
-- **根因**：`deploy.yml` 的 Build 步骤用 `SITE_URL: ${{ secrets.SITE_URL }}` 等注入环境变量，而仓库并未配置这三个 secrets——GitHub Actions 对未配置的 secret 注入的是**空字符串**（变量存在、值为空）；Vite 的 env 优先级是 `process.env` > `.env` 文件，空串于是顶掉了随仓库提交的 `.env` 有效值。`loadEnv(mode, cwd, "")`（site-meta.js）与 `import.meta.env.VITE_AMAP_KEY`（amap.js）双双拿到空值。即自 2aadd0d 引入 secrets 注入起，线上地图与 rss 域名一直是坏的，只是一直没复验到。
-- **修复（`vite.config.js` 开头 3 行循环）**：`SITE_URL / VITE_AMAP_KEY / VITE_AMAP_SECURITY` 三键若在 `process.env` 中是空字符串，直接 `delete` 掉——空串视为未配置，让 `.env` 兜底；日后真在仓库配了 secrets（非空）时注入照常生效。
-- **验证**：本地用 `SITE_URL="" VITE_AMAP_KEY="" VITE_AMAP_SECURITY="" npm run build` 精确模拟 CI 空注入条件——rss.xml 恢复真实域名 `51hexiao.github.io/yangfan-site`、高德 key 正常进 chunk。推送后线上复验：chunk 含高德 key、rss 为真实地址、`avatar-hero-2.png` 200。
-- **踩坑记录**：给 GitHub Actions 的 `env:` 块写 `${{ secrets.X }}` 时，secret 不存在 ≠ 变量不存在——会得到一个空字符串变量。依赖「变量未定义」做兜底判断的代码（`.env` 回退、`||` 默认值对此场景有效但 `process.env` 优先级在 Vite 里更靠前）会被静默击穿。要么按本节的空串删除法处理，要么在 workflow 里用 `if` 条件动态拼接 env。
-- **连带发现**：workflow 注释建议把 key 放 secrets「保持仓库源码干净」——实际上 `.env` 已随仓库提交且 key 本就打进公开 bundle，secrets 在此处属于可选项，真正的防盗用仍是高德域名白名单（待办不变）。
+### 2026-09-16 更新：修复线上地图降级 / rss 占位域名（CI 环境「双重落空」）
+- **起因**：推送 609e8ee 后线上复验发现——线上 chunk 无高德 key、rss.xml 全是占位域名 `example.com`，地图实际处于「待通电」降级态。追查后发现故障比初判的更深，是**两层叠加**：
+  1. **`.env` 其实从未真正「随仓库提交」到今天**：1645700 时它确实在仓库里（当时线上地图正常、key 进 chunk）；f396774 又把它移出跟踪并在 `.gitignore` 加了「禁止入库」规则——09-14 文档里「新建随仓库提交的 `.env`」的说法在 f396774 之后已失效。
+  2. **2aadd0d 把 CI 构建改为从 Actions secrets 注入三个变量，但 secrets 从未在仓库 Settings 里配置过**。GitHub Actions 对未配置的 secret 注入的是**空字符串**（变量存在、值为空），且 Vite 的 env 优先级是 `process.env` > `.env` 文件。
+  - 两层叠加的结果：CI 构建既没有 `.env`（不在仓库）也没有 secrets（空串），`VITE_AMAP_KEY` / `SITE_URL` 全空。**自 f396774/2aadd0d 起的每个部署，线上地图都是「待通电」、rss 都是 example.com**；期间只验过本地 build 与 dist 产物，没验线上，漏了过去。
+- **修复（两件）**：
+  1. `vite.config.js` 开头加 3 行循环：`SITE_URL / VITE_AMAP_KEY / VITE_AMAP_SECURITY` 在 `process.env` 中若为空字符串，直接 `delete`——空串视为未配置；日后配了真实 secrets（非空）时注入照常生效。本地用 `SITE_URL="" VITE_AMAP_KEY="" VITE_AMAP_SECURITY="" npm run build` 精确模拟空注入，验证该层有效。
+  2. **`.env` 重新入库**（`.gitignore` 移除对它的排除、保留 `.env.*`）：高德 key 本就会打进公开前端 bundle（JS API 机制），仓库不放它并不能保密，只会让 CI 拿到空值；真正的防盗用是高德控制台域名白名单（待办不变）。`deploy.yml` 注释同步说明「secrets 优先、空串回退 .env」的优先级链。
+- **验证**：推送后下载 Actions 构建产物核对——rss.xml / sitemap.xml 全部为 `51hexiao.github.io/yangfan-site` 真实地址、高德 key 进 Explore chunk；线上复验同口径通过。
+- **踩坑记录**：① GitHub Actions 的 `env: X: ${{ secrets.X }}` 在 secret 不存在时 ≠ 变量不存在——会得到一个空字符串变量，能把 `.env` 兜底逻辑静默击穿（本节空串删除法或 workflow 内 `if` 条件拼接可防）；② 「文档说 .env 已入库」不可信，用 `git ls-files .env` / `git ls-tree <sha> -- .env` 验证才是事实——本次排查初期就因轻信 09-14 的记录，先修了空串覆盖这一层、推上去才发现 CI 里根本没有 `.env`；③ 线上验收要看部署产物（下载 artifact 或对 chunk 内容 grep），只看本地 build 会漏掉 CI 环境差异类故障。
+- **遗留**：高德域名白名单（待办不变）；三个 secrets 现在没必要配（.env 已入库），若未来想把 key 挪出仓库再配也不迟，两条通道兼容。
 
 ## 六、路线图
 

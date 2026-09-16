@@ -16,8 +16,10 @@ dist-ssr
 posts/.trash/
 explore/.trash/
 
-# 环境变量：含高德 AMAP Key / 安全密钥，禁止入库（本地文件保留）
-.env
+# 环境变量：.env（SITE_URL + 高德 key/jscode）随仓库提交。
+# 高德 key 本就会打进公开前端 bundle（JS API 机制），仓库不放它并不能保密，
+# 只会让 CI 构建拿到空值——曾因「移出仓库 + secrets 未配置」导致线上地图/rss 静默坏掉（见 PROJECT.md 2026-09-16）。
+# 真正的防盗用是高德控制台域名白名单。.env.local 等本地覆盖文件仍不入库。
 .env.*
 !.env.example
 

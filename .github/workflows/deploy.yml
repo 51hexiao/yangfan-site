@@ -35,8 +35,9 @@ jobs:
 
       - name: Build
         env:
-          # 在仓库 Settings → Secrets and variables → Actions 里配置这三个值
-          # （key 本会打进公开的前端 bundle，secrets 主要保持仓库源码干净；真正的防盗用是高德域名白名单）
+          # 优先用 Actions secrets（Settings → Secrets and variables → Actions 配置）。
+          # secrets 未配置时 GitHub 注入的是空字符串——vite.config.js 会把空值删掉，
+          # 回退用随仓库提交的 .env（key 本就会打进公开前端 bundle，真正的防盗用是高德域名白名单）。
           SITE_URL: ${{ secrets.SITE_URL }}
           VITE_AMAP_KEY: ${{ secrets.VITE_AMAP_KEY }}
           VITE_AMAP_SECURITY: ${{ secrets.VITE_AMAP_SECURITY }}
