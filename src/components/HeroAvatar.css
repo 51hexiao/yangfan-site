@@ -1,0 +1,300 @@
+/* ==========================================================
+   首页 Hero 头像展示区 · HeroAvatar（仅首页使用）
+   ——————————————————————————————————————————————
+   设计语言与内页手账同源：邮票虚线环 · 罗盘刻度 · 奶油压边 · 网点纸
+   层次（由外向内）：柔光底晕 → 罗盘刻度环（缓转）→ 卫星光点
+                     → 邮票虚线环 → 奶油压边环 → 相纸白描边头像
+   主题适配：光环 / 柔光 / 卫星取 --accent 提亮色，7 套主题自动跟随；
+            白色与 --cream 负责"相纸 + 奶油"对比（Hero 底色恒为深墨绿遮罩）。
+   交互：指针位置写入 --hav-tilt-x/y 与 --hav-mx/y，实现轻倾 + 光晕跟随。
+   安全：装饰层一律 pointer-events:none，不拦截首页任何点击。
+   ========================================================== */
+
+.hero-avatar-wrap {
+  position: relative;
+  width: clamp(140px, 22vw, 216px);
+  aspect-ratio: 1;
+  justify-self: center;
+  perspective: 820px;
+  /* 以下变量由 JS 在指针移动时覆盖，默认值指向"正中偏上" */
+  --hav-mx: 50%;
+  --hav-my: 40%;
+  --hav-tilt-x: 0deg;
+  --hav-tilt-y: 0deg;
+  --hav-lift: 0px;
+  --hav-accent-bright: color-mix(in srgb, var(--accent) 52%, #ffffff 48%);
+  --hav-accent-mid: color-mix(in srgb, var(--accent) 44%, transparent);
+  --hav-accent-dim: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ---------- 柔光底晕：呼吸式明暗，随指针偏移重心 ---------- */
+.hav-halo {
+  position: absolute;
+  inset: -30%;
+  z-index: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--hav-mx) var(--hav-my),
+    color-mix(in srgb, var(--hav-accent-bright) 58%, transparent) 0%,
+    var(--hav-accent-mid) 40%,
+    transparent 70%
+  );
+  filter: blur(18px);
+  opacity: 0.55;
+  animation: hav-breathe 9s ease-in-out infinite;
+}
+
+/* ---------- 舞台：承载轨道环与头像，做 3D 轻倾 ---------- */
+.hav-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--hav-tilt-x)) rotateY(var(--hav-tilt-y));
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.hav-orbit {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* 外圈：罗盘刻度（repeating-conic 画刻度，mask 只留一圈细带），120s 自转 */
+.hav-orbit--dial {
+  inset: -30px;
+  background: repeating-conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--hav-accent-bright) 62%, transparent) 0deg 0.5deg,
+    transparent 0.5deg 5deg
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3.4px),
+    #000 calc(100% - 2.8px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 3.4px),
+    #000 calc(100% - 2.8px)
+  );
+  opacity: 0.8;
+  animation: hav-spin 120s linear infinite;
+}
+
+/* 中圈：邮票虚线环（沿用原设计语言，改用 accent 着色） */
+.hav-orbit--stamp {
+  inset: -16px;
+  border: 2px dashed color-mix(in srgb, #ffffff 58%, var(--accent) 42%);
+  transition: border-color 0.3s ease;
+}
+
+/* 内圈：奶油压边环，紧贴相纸，像贴纸的暖边透光 */
+.hav-orbit--paper {
+  inset: -6px;
+  border: 1px solid color-mix(in srgb, var(--cream) 46%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--cream) 18%, transparent);
+  opacity: 0.9;
+  transition: border-color 0.3s ease, opacity 0.3s ease;
+}
+
+/* 卫星光点：沿邮票环缓慢公转 */
+.hav-satellite {
+  position: absolute;
+  inset: -16px;
+  z-index: 2;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: hav-spin 28s linear infinite;
+}
+
+.hav-satellite::after {
+  content: "";
+  position: absolute;
+  top: -3.5px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--hav-accent-bright);
+  box-shadow: 0 0 12px 3px var(--hav-accent-mid),
+    0 0 0 1.5px rgba(255, 255, 255, 0.75);
+}
+
+/* ---------- 头像本体：相纸白描边 + accent 外发光 ---------- */
+.hero-avatar {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--surface);
+  border: 4px solid rgba(255, 255, 255, 0.94);
+  box-shadow: 0 0 0 1px var(--hav-accent-dim), 0 18px 48px rgba(0, 0, 0, 0.34),
+    0 0 34px -8px var(--hav-accent-mid);
+  transform: translateY(var(--hav-lift));
+  transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.45s ease;
+}
+
+.hero-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.02);
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* 网点纸质感：4px 网点，soft-light 叠在插画上（波普同源） */
+.hav-grain {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.5) 0.6px,
+    transparent 0.9px
+  );
+  background-size: 4px 4px;
+  mix-blend-mode: soft-light;
+  opacity: 0.48;
+}
+
+/* 暗角与顶光：给圆片一点球面感，避免"贴纸感"太平 */
+.hav-vignette {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+      circle at 50% -14%,
+      rgba(255, 255, 255, 0.16),
+      transparent 44%
+    ),
+    radial-gradient(circle at 50% 116%, rgba(0, 0, 0, 0.28), transparent 46%);
+  box-shadow: inset 0 -12px 26px rgba(0, 0, 0, 0.18),
+    inset 0 10px 20px rgba(255, 255, 255, 0.1);
+}
+
+/* 扫光：hover 时斜向掠过，只走一次（进场过渡） */
+.hav-sheen {
+  position: absolute;
+  inset: -30%;
+  pointer-events: none;
+  background: linear-gradient(
+    104deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.42) 50%,
+    transparent 60%
+  );
+  mix-blend-mode: screen;
+  opacity: 0;
+  transform: translate3d(-26%, 0, 0);
+  transition: opacity 0.5s ease,
+    transform 1.1s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ---------- hover：整体上浮 + 各环回应 ---------- */
+.hero-avatar-wrap:hover {
+  --hav-lift: -7px;
+}
+
+.hero-avatar-wrap:hover .hav-orbit--stamp {
+  border-color: color-mix(in srgb, #ffffff 84%, var(--accent) 16%);
+}
+
+.hero-avatar-wrap:hover .hav-orbit--dial {
+  opacity: 1;
+}
+
+.hero-avatar-wrap:hover .hav-orbit--paper {
+  border-color: color-mix(in srgb, var(--cream) 76%, transparent);
+  opacity: 1;
+}
+
+.hero-avatar-wrap:hover .hav-halo {
+  animation-duration: 5.5s;
+}
+
+.hero-avatar-wrap:hover .hero-avatar {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 46%, transparent),
+    0 24px 56px rgba(0, 0, 0, 0.4), 0 0 44px -6px var(--hav-accent-mid);
+}
+
+.hero-avatar-wrap:hover .hero-avatar img {
+  transform: scale(1.05);
+}
+
+.hero-avatar-wrap:hover .hav-sheen {
+  opacity: 0.6;
+  transform: translate3d(26%, 0, 0);
+}
+
+@keyframes hav-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes hav-breathe {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(1.04);
+  }
+}
+
+/* ---------- 小屏：与 index.css 的 760px 断点同步收缩 ---------- */
+@media (max-width: 760px) {
+  .hero-avatar-wrap {
+    width: 128px;
+    order: -1;
+  }
+  .hav-orbit--dial {
+    inset: -22px;
+  }
+  .hav-orbit--stamp,
+  .hav-satellite {
+    inset: -11px;
+  }
+  .hav-orbit--paper {
+    inset: -4px;
+  }
+  .hav-halo {
+    inset: -24%;
+  }
+}
+
+/* ---------- 减少动效：停掉一切自转 / 呼吸 / 位移 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hav-halo,
+  .hav-orbit--dial,
+  .hav-satellite {
+    animation: none;
+  }
+  .hav-stage,
+  .hero-avatar,
+  .hero-avatar img {
+    transition: none;
+  }
+  .hav-sheen {
+    display: none;
+  }
+  .hero-avatar-wrap:hover {
+    --hav-lift: 0px;
+  }
+  .hero-avatar-wrap:hover .hero-avatar img {
+    transform: scale(1.02);
+  }
+}

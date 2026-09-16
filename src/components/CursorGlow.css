@@ -1,0 +1,137 @@
+/* ==========================================================
+   首页 Hero 鼠标光效（组件：CursorGlow.jsx）
+
+   配色：不写死任何颜色，--glow / --glow-line 都由主题令牌 --accent
+   与白色混合而来，7 套主题切换时自动换色；不支持 color-mix 的
+   老浏览器回落到中性微光，不影响可用性。
+   层级：光层压在 .hero .container（z-index: 2）之下，只在留白处
+   浮现，永远不会盖住标题与正文。
+   ========================================================== */
+
+.cursor-glow {
+  --glow: #dfe9e3; /* 兜底：老浏览器的中性微光 */
+  --glow-line: #dfe9e3;
+  position: absolute;
+  inset: 0;
+  /* 与 .hero::after（底部柔化过渡）同级，让它盖住光层，
+     光在 hero 下沿自然淡出，不会在跟页面背景交界处硬切 */
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.cursor-glow.is-live {
+  opacity: 1;
+}
+
+@supports (color: color-mix(in srgb, red 50%, white)) {
+  .cursor-glow {
+    /* 柔光偏淡、光圈偏实，拉开层次又不刺眼 */
+    --glow: color-mix(in srgb, var(--accent) 44%, #ffffff 56%);
+    --glow-line: color-mix(in srgb, var(--accent) 58%, #ffffff 42%);
+  }
+}
+
+/* 三个光层共用：定点在左上角，靠 transform 平移居中 */
+.cursor-glow-halo,
+.cursor-glow-ring,
+.cursor-glow-ripple {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+/* ---------- 柔光：一大团跟着走的光雾，跟得最慢，拖出"光在流动"的感觉 ----------
+   用纯色底 + mask 做径向衰减（而不是径向渐变背景），这样换主题时
+   background-color 能平滑过渡，光色是"渐变过去"而不是"跳一下"。 */
+.cursor-glow-halo {
+  width: 620px;
+  height: 620px;
+  margin: -310px 0 0 -310px;
+  background-color: var(--glow);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0) 68%);
+  mask-image: radial-gradient(circle, #000 0%, rgba(0, 0, 0, 0) 68%);
+  opacity: 0.16;
+  transition: background-color 0.45s ease;
+}
+
+/* ---------- 光圈：两圈细线，内圈更跟手，形成轻微视差 ---------- */
+.cursor-glow-ring {
+  border: 1px solid var(--glow-line);
+  transition: border-color 0.45s ease;
+}
+
+.cursor-glow-ring-far {
+  width: 340px;
+  height: 340px;
+  margin: -170px 0 0 -170px;
+  opacity: 0.2;
+}
+
+.cursor-glow-ring-near {
+  width: 168px;
+  height: 168px;
+  margin: -84px 0 0 -84px;
+  opacity: 0.28;
+}
+
+/* ---------- 涟漪：指针走过一段路，就在原地留一圈慢慢扩散、淡出的光 ---------- */
+.cursor-glow-ripple {
+  width: 220px;
+  height: 220px;
+  margin: -110px 0 0 -110px;
+  will-change: transform, opacity;
+}
+
+.cursor-glow-ripple::after {
+  --ripple-ink: 0.32;
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glow-line);
+  opacity: var(--ripple-ink);
+  animation: cursor-glow-ripple 1.5s cubic-bezier(0.22, 0.61, 0.36, 1)
+    forwards;
+}
+
+.cursor-glow-ripple.is-big {
+  width: 320px;
+  height: 320px;
+  margin: -160px 0 0 -160px;
+}
+
+/* 点击时的那一下，稍微重一点、慢一点 */
+.cursor-glow-ripple.is-big::after {
+  --ripple-ink: 0.46;
+  border-width: 1.5px;
+  animation-duration: 1.9s;
+}
+
+@keyframes cursor-glow-ripple {
+  from {
+    transform: scale(0.82);
+    opacity: var(--ripple-ink);
+  }
+  to {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+}
+
+/* 系统减弱动效 / 触摸设备：整套光效不出现 */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-glow {
+    display: none;
+  }
+}
+
+@media (hover: none) {
+  .cursor-glow {
+    display: none;
+  }
+}

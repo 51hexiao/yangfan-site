@@ -6,6 +6,8 @@ import { profile } from "../data/profile.js";
 import { records } from "../utils/explore.js";
 import { collections } from "../data/collections.js";
 import { usePageTitle } from "../utils/usePageTitle.js";
+import CursorGlow from "../components/CursorGlow.jsx";
+import HeroAvatar from "../components/HeroAvatar.jsx";
 
 export default function Home() {
   usePageTitle();
@@ -46,10 +48,11 @@ export default function Home() {
   return (
     <>
       <section className="hero">
+        <CursorGlow />
         <div className="container hero-inner">
           <div className="hero-copy">
             <h1>
-              你好，我是 <span className="hero-name">杨帆</span>
+              你好，我是 <span className="hero-name">{profile.name}</span>
             </h1>
             <p className="hero-desc">
               CS 在读，白天写代码，晚上在这间妙妙屋里记点思考、作品和日常。
@@ -78,11 +81,7 @@ export default function Home() {
               </a>
             </p>
           </div>
-          <div className="hero-avatar-wrap">
-            <div className="hero-avatar">
-              <img src={`${import.meta.env.BASE_URL}avatar.jpg`} alt="头像" />
-            </div>
-          </div>
+          <HeroAvatar />
         </div>
       </section>
 
